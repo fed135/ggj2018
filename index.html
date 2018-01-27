@@ -38,12 +38,47 @@
             margin: 0;
             padding: 0;
         }
+
+        /*Lock landscape */
+        @media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (orientation: portrait) {
+            body {
+                -webkit-transform: rotate(-90deg);
+                -moz-transform: rotate(-90deg);
+                -ms-transform: rotate(-90deg);
+                transform: rotate(-90deg);
+            }
+        }
+
+        ::-moz-selection, ::selection{
+            background:transparent;
+        }
+
+        #splash, #lobby {
+            background-color: white;
+            position: absolute;
+            top:0;
+            left:0;
+            width:100%;
+            height:100%;
+        }
+
+        #game {
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            perspective: 1000;
+            transform: translate3d(0, 0, 0);
+        }
     </style>
 </head>
 
 <body>
 <div id="content">
-
+<div id="splash">
+    <input id="lobby_name" />
+    <div id="lobby_btn">ENTER</div>
+</div>
+<div id="lobby" style="display: none;"></div>
+<div id="game"></div>
 </div>
 </body>
 </html>
