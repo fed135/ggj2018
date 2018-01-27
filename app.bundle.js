@@ -83,7 +83,7 @@ function handleReady() {
     }
 }
 function handleMatchUpdate(packet) {
-    match.state = packet.state;
+    match = packet;
     if (match.state === 'game') {
         new Game_1.default(document.getElementById('game'));
         document.getElementById('lobby').style.display = 'none';
