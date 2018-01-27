@@ -1,16 +1,16 @@
 import Kalm from 'kalm';
 import ws from 'kalm-websocket';
 
-import config from '../config';
-
 class NetworkWorker {
 	constructor(scope) {
 		this.socket = Kalm.connect({
-			hostname: config.hostname,
-			port: config.port,
+			hostname: '54.209.253.88',
+			port: 9000,
 			transport: ws,
 			profile: { tick: 0 }
 		});
+
+		this.socket.on('connect', () => console.log('Connected'))
 
 		this.emit = scope.postMessage.bind(scope);
 

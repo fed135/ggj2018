@@ -4,6 +4,7 @@ import {Map, parseMap, Tile} from "./map/Map";
 import {each} from 'lodash';
 
 const MUSHROOM = 'mushroom';
+const AVATAR = 'avatar';
 
 
 export default class Game {
@@ -20,6 +21,7 @@ export default class Game {
 
     // load the texture we need
     PIXI.loader.add(MUSHROOM, './assets/sprites/mushroom.png');
+    PIXI.loader.add(AVATAR, './assets/sprites/mushroom.png');
     each(MapData.tiles, (path, id) => {
       PIXI.loader.add(id, path);
     });
@@ -28,16 +30,7 @@ export default class Game {
 
   load = (app) => (loader, resources) => {
     const map: Map = parseMap(MapData);
-    map.map((tile: Tile) => {
-      const graphic: PIXI.Sprite = new PIXI.Sprite(resources[tile.tileId].texture);
-
-      // Setup the position of the bunny
-      graphic.x = tile.x;
-      graphic.y = tile.y;
-
-      app.stage.addChild(graphic);
-
-    });
+    loadMap(app.stage, map, resources);
 
     // Listen for frame updates
     app.ticker.add(this.render);
@@ -47,3 +40,16 @@ export default class Game {
 
   }
 }
+
+const loadMap = (container: PIXI.Container, map: Map, resources) => {
+  map.map((tile: Tile) => {
+    const graphic: PIXI.Sprite = new PIXI.Sprite(resources[tile.tileId].texture);
+
+    // Setup the position of the bunny
+    graphic.x = tile.x;
+    graphic.y = tile.y;
+
+    container.addChild(graphic);
+
+  });
+};

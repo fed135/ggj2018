@@ -36,4 +36,4 @@ class NetworkClient extends EventEmitter {
 	}
 }
 
-export default new NetworkClient();
+export default NetworkClient;
