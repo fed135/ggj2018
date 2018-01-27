@@ -33,20 +33,6 @@ module.exports = {
         return module.resource && vendorPackages.test(module.resource) && count >= 1;
       }
     }),
-    new UglifyJsPlugin({
-      uglifyOptions: {
-        mangle: true,
-        drop_console: true,
-        minimize: true
-      },
-      output: {
-        comments: false,
-        beautify: false
-      }
-    }),
-    new JavaScriptObfuscator({
-      rotateUnicodeArray: true
-    }, [ 'vendor.bundle.js' ]),
     new HtmlWebpackPlugin({
       template: './index.html',
       inject: 'body'
