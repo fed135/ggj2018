@@ -40,8 +40,8 @@ doCompile
 # Copy our other static content to the dist repo
 echo "========================================================"
 echo "Copy static assets"
-cp -R assets/* dist
-cp index.html dist/index.html
+#cp -R assets/* dist
+#cp index.html dist/index.html
 
 # Now let's go have some fun with the cloned repo
 echo "========================================================"
