@@ -1,6 +1,11 @@
 export default {
   width: 2,
-  tiles: {},
+  tileWidth: 100,
+  tileHeight: 100,
+  tiles: {
+    0: 'default.png',
+  },
+
   map: [
     0, 0,
     0, 0,
