@@ -20,25 +20,25 @@ REPO=`git config remote.origin.url`
 SSH_REPO=${REPO/https:\/\/github.com\//git@github.com:}
 SHA=`git rev-parse --verify HEAD`
 
-# Clone the existing gh-pages for this repo into out/
+# Clone the existing gh-pages for this repo into dist/
 # Create a new empty branch if gh-pages doesn't exist yet (should only happen on first deply)
-git clone $REPO out
-cd out
+git clone $REPO dist
+cd dist
 git checkout $TARGET_BRANCH || git checkout --orphan $TARGET_BRANCH
 cd ..
 
-# Clean out existing contents
-rm -rf out/**/* || exit 0
+# Clean dist existing contents
+rm -rf dist/**/* || exit 0
 
 # Run our compile script
 doCompile
 
-# Copy our other static content to the out repo
-cp -R assets/* out
-cp index.html out/index.html
+# Copy our other static content to the dist repo
+cp -R assets/* dist
+cp index.html dist/index.html
 
 # Now let's go have some fun with the cloned repo
-cd out
+cd dist
 git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 
@@ -65,7 +65,7 @@ ENCRYPTED_KEY_VAR="encrypted_${ENCRYPTION_LABEL}_key"
 ENCRYPTED_IV_VAR="encrypted_${ENCRYPTION_LABEL}_iv"
 ENCRYPTED_KEY=${!ENCRYPTED_KEY_VAR}
 ENCRYPTED_IV=${!ENCRYPTED_IV_VAR}
-openssl aes-256-cbc -K $encrypted_96214dec6a0b_key -iv $encrypted_96214dec6a0b_iv -in ggj2018_key.enc -out ggj2018_key -d
+openssl aes-256-cbc -K $encrypted_96214dec6a0b_key -iv $encrypted_96214dec6a0b_iv -in ggj2018_key.enc -dist ggj2018_key -d
 chmod 600 ggj2018_key
 eval `ssh-agent -s`
 ssh-add ggj2018_key
