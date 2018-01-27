@@ -26,9 +26,7 @@ function init() {
 }
 
 function handleJoin(param) {
-  console.log('heyoo')
   if (!locked) {
-    console.log('meeeps')
     locked = true;
     const tag = document.getElementById('game');
 
@@ -66,7 +64,6 @@ function handleReply(packet) {
 }
 
 function enterLobby() {
-    console.log(match)
   document.getElementById('lobby').style.display = 'block';
   document.getElementById('splash').style.display = 'none';
   document.getElementById('lobby_name_label').innerHTML = match.name;
