@@ -39,7 +39,9 @@ export const mapValidation = (mapData: MapData): boolean => {
     throw new Error('Map "map" should not be empty');
   }
 
-  const tileKeys = keys(mapData.tiles).map(parseInt);
+  const keyList = keys(mapData.tiles);
+  console.log('keyList', keyList);
+  const tileKeys = keyList.map((key) => parseInt(key));
   console.log('Loading tile keys', tileKeys);
   if (!uniq(mapData.map).every(isIn(tileKeys))) {
     throw new Error('A key was used in Map.map that was not defined in Map.tiles');
