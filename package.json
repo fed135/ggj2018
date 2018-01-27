@@ -5,7 +5,8 @@
   "scripts": {
     "build": "webpack --config webpack.prod.config.js",
     "serve": "http-server ./dist -p 80",
-    "test": "mocha --require ts-node/register --watch-extensions ts,tsx \"test/**/*.{js,ts,tsx}\" client/test/index.ts",
+    "test": "mocha --require ts-node/register --watch-extensions js,ts,tsx client/test/index.ts",
+    "test-node": "mocha --require ts-node/register --watch-extensions js,ts,tsx client/test/index.ts",
     "client:start": "webpack-dev-server --config webpack.dev.config.js -d --inline --hot --progress --no-info --port 8000",
     "client:build": "rimraf ./dist && webpack --config webpack.prod.config.js -p --progress",
     "server:start": "nodemon --config config/nodemon.json --exec 'ts-node' server/index.ts"

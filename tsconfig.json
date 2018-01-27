@@ -10,15 +10,13 @@
       "es2015",
       "es2016"
     ],
-    "module": "es2015",
+    "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": false,
     "target": "es5",
     "typeRoots": [
       "node_modules/@types",
-      "node_modules/phaser-ce/typescript/phaser.d.ts",
-      "node_modules/phaser-ce/typescript/pixi.d.ts",
-      "node_modules/phaser-ce/typescript/p2.d.ts"
+      "node_modules/phaser-ce/typescript/pixi.d.ts"
     ],
     "outDir": "dist"
   },
