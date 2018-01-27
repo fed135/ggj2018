@@ -73,6 +73,7 @@ function enterLobby() {
     document.getElementById('splash').style.display = 'none';
     document.getElementById('lobby_name_label').innerHTML = match.name;
     document.getElementById('ready_btn').onclick = handleReady;
+    document.getElementById('quit_btn').onclick = handleQuit;
 }
 function handleReady() {
     if (!locked) {
