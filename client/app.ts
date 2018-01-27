@@ -1,88 +1,34 @@
-import 'pixi';
-import 'p2';
-import * as Phaser from 'phaser-ce';
-import Tilemap = Phaser.Tilemap;
-import TilemapLayer = Phaser.TilemapLayer;
-import Graphics = Phaser.Graphics;
-import CursorKeys = Phaser.CursorKeys;
+import * as PIXI from 'pixi.js';
+import mushroom from './assets/sprites/mushroom.png'
 
+// The application will create a renderer using WebGL, if possible,
+// with a fallback to a canvas render. It will also setup the ticker
+// and the root stage PIXI.Container
+const app = new PIXI.Application();
 
-let currentDataString: string = '';
-let cursors: CursorKeys;
+// The application will create a canvas element for you that you
+// can then insert into the DOM
+document.body.appendChild(app.view);
 
-const preload = () => {
-	game.load.tilemap('map', 'assets/tile_properties.json', null, Phaser.Tilemap.TILED_JSON);
-	game.load.image('tiles', 'assets/gridtiles.png');
-};
+// load the texture we need
+PIXI.loader.add('bunny', mushroom).load((loader, resources) => {
+  // This creates a texture from a 'bunny.png' image
+  const bunny = new PIXI.Sprite(resources.bunny.texture);
 
-const create = () => {
-	game.physics.startSystem(Phaser.Physics.ARCADE);
+  // Setup the position of the bunny
+  bunny.x = app.renderer.width / 2;
+  bunny.y = app.renderer.height / 2;
 
-	const map = game.add.tilemap('map');
+  // Rotate around the center
+  bunny.anchor.x = 0.5;
+  bunny.anchor.y = 0.5;
 
-	map.addTilesetImage('tiles');
+  // Add the bunny to the scene we are building
+  app.stage.addChild(bunny);
 
-	// map.setCollisionBetween(1, 12);
-
-	const layer = map.createLayer('Tile Layer 1');
-
-	layer.resizeWorld();
-
-	//  Our painting marker
-	const marker = game.add.graphics();
-	marker.lineStyle(2, 0xffffff, 1);
-	marker.drawRect(0, 0, 32, 32);
-
-	game.input.addMoveCallback(updateMarker(marker, layer), this);
-	game.input.onDown.add(getTileProperties(layer, map), this);
-
-	cursors = game.input.keyboard.createCursorKeys();
-};
-
-const getTileProperties = (layer: TilemapLayer, map: Tilemap) => () => {
-	const x = layer.getTileX(game.input.activePointer.worldX);
-	const y = layer.getTileY(game.input.activePointer.worldY);
-	const tile = map.getTile(x, y, layer);
-
-	// Note: JSON.stringify will convert the object tile properties to a string
-	currentDataString = JSON.stringify(tile.properties);
-
-	tile.properties.wibble = true;
-};
-
-const updateMarker = (marker: Graphics, layer: TilemapLayer) => () => {
-	marker.x = layer.getTileX(game.input.activePointer.worldX) * 32;
-	marker.y = layer.getTileY(game.input.activePointer.worldY) * 32;
-};
-
-const update = () => {
-	if (cursors.left.isDown) {
-		game.camera.x -= 4;
-	}
-	else if (cursors.right.isDown) {
-		game.camera.x += 4;
-	}
-
-	if (cursors.up.isDown) {
-		game.camera.y -= 4;
-	}
-	else if (cursors.down.isDown) {
-		game.camera.y += 4;
-	}
-
-};
-
-const render = () => {
-	if (currentDataString) {
-		game.debug.text('Tile properties: ' + currentDataString, 16, 550);
-	} else {
-		game.debug.text('Click on a tile to reveal the properties of the tile', 16, 550);
-	}
-};
-
-const game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', {
-	preload,
-	create,
-	update,
-	render
+  // Listen for frame updates
+  app.ticker.add(() => {
+    // each frame we spin the bunny around a bit
+    bunny.rotation += 0.01;
+  });
 });

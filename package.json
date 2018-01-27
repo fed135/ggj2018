@@ -1,37 +1,40 @@
 {
-	"name": "phaser-typescript-webpack",
-	"version": "1.0.0",
-	"description": "A good place to get started with Phaser and TypeScript development",
-	"scripts": {
-		"build": "exit 0;",
-		"client:start": "webpack-dev-server --config webpack.dev.config.js -d --inline --hot --progress --no-info --port 8000",
-		"client:build": "rimraf ./dist && webpack --config webpack.prod.config.js -p --progress",
-		"server:start": "nodemon --config config/nodemon.json --exec 'ts-node' server/index.ts"
-	},
-	"engines": {
-		"node": ">= 7.0.0"
-	},
-	"author": "Costin Mirica <hi@costinmirica.com> (http://www.costinmirica.com/)",
-	"license": "MIT",
-	"homepage": "https://github.com/numbofathma/phaser-typescript-webpack",
-	"devDependencies": {
-		"@types/howler": "^2.0.5",
-		"@types/node": "^9.3.0",
-		"copy-webpack-plugin": "^4.3.1",
-		"expose-loader": "^0.7.1",
-		"html-webpack-plugin": "^2.29.0",
-		"nodemon": "^1.14.11",
-		"rimraf": "^2.5.4",
-		"ts-loader": "^3.3.1",
-		"ts-node": "^4.1.0",
-		"webpack": "^3.10.0",
-		"webpack-dev-server": "^2.9.7",
-		"webpack-obfuscator": "^0.13.0",
-		"webpack-uglify-js-plugin": "^1.1.9"
-	},
-	"dependencies": {
-		"howler": "^2.0.7",
-		"phaser-ce": "^2.9.4",
-		"typescript": "^2.6.2"
-	}
+  "name": "remote_controlled_bunny",
+  "version": "1.0.0",
+  "description": "Game about transmission",
+  "scripts": {
+    "build": "webpack --config webpack.prod.config.js",
+    "serve": "http-server ./dist -p 80",
+    "client:start": "webpack-dev-server --config webpack.dev.config.js -d --inline --hot --progress --no-info --port 8000",
+    "client:build": "rimraf ./dist && webpack --config webpack.prod.config.js -p --progress",
+    "server:start": "nodemon --config config/nodemon.json --exec 'ts-node' server/index.ts"
+  },
+  "engines": {
+    "node": ">= 7.0.0"
+  },
+  "author": "Team GGJ2018",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/howler": "^2.0.5",
+    "@types/node": "^9.3.0",
+    "@types/pixi.js": "^4.6.3",
+    "copy-webpack-plugin": "^4.3.1",
+    "expose-loader": "^0.7.1",
+    "html-webpack-plugin": "^2.29.0",
+    "nodemon": "^1.14.11",
+    "rimraf": "^2.5.4",
+    "ts-loader": "^3.3.1",
+    "ts-node": "^4.1.0",
+    "url-loader": "^0.6.2",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.9.7",
+    "webpack-obfuscator": "^0.13.0",
+    "webpack-uglify-js-plugin": "^1.1.9"
+  },
+  "dependencies": {
+    "howler": "^2.0.7",
+    "http-server": "^0.11.1",
+    "pixi.js": "^4.7.0",
+    "typescript": "^2.6.2"
+  }
 }

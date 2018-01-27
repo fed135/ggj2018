@@ -75,3 +75,13 @@ Special thanks to:
 
 <br />
 Made with <3 in Romania 
+
+
+## TODO
+* Pixi vs phaser?
+* Integrate spritesheet
+
+## Commitments
+Map format = int[]
+map format is in a json file with hotreload
+Movements are static (no physic)
