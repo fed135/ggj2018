@@ -34,7 +34,8 @@ rm -rf out/**/* || exit 0
 doCompile
 
 # Copy our other static content to the out repo
-cp -R public/* out
+cp -R assets/* out
+cp index.html out/index.html
 
 # Now let's go have some fun with the cloned repo
 cd out
@@ -42,8 +43,6 @@ git config user.name "Travis CI"
 git config user.email "$COMMIT_AUTHOR_EMAIL"
 
 # Remove stuff we dont need for the website
-rm -rf .babelrc
-rm -rf .eslintrc
 rm -rf .travis.yml
 rm -rf deploy_key
 rm -rf webpack.conf.js
