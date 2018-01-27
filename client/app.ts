@@ -1,5 +1,4 @@
+import Game from './Game';
 
+new Game(document.getElementById('game') as HTMLDivElement);
 
-const contentDiv = document.getElementById('content');
-
-contentDiv.innerText = "hello world";

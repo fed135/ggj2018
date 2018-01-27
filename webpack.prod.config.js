@@ -24,7 +24,7 @@ module.exports = {
     new CopyWebpackPlugin([
       {
         from: './client/assets',
-        to: './dist/assets'
+        to: './assets'
       }
     ]),
     new webpack.optimize.CommonsChunkPlugin({
