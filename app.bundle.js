@@ -224,7 +224,9 @@ exports.mapValidation = function (mapData) {
     if (lodash_1.isEmpty(mapData.map)) {
         throw new Error('Map "map" should not be empty');
     }
-    var tileKeys = lodash_1.keys(mapData.tiles).map(parseInt);
+    var keyList = lodash_1.keys(mapData.tiles);
+    console.log('keyList', keyList);
+    var tileKeys = keyList.map(function (key) { return parseInt(key); });
     console.log('Loading tile keys', tileKeys);
     if (!lodash_1.uniq(mapData.map).every(isIn(tileKeys))) {
         throw new Error('A key was used in Map.map that was not defined in Map.tiles');
