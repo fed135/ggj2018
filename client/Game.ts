@@ -1,8 +1,12 @@
 import * as PIXI from 'pixi.js';
+import MapData from './assets/map/map';
+import {Map, parseMap, Tile} from "./map/Map";
+import {each} from 'lodash';
 
 const MUSHROOM = 'mushroom';
-export default class Game {
 
+
+export default class Game {
 
   constructor(container: HTMLDivElement) {
     // The application will create a renderer using WebGL, if possible,
@@ -15,29 +19,31 @@ export default class Game {
     container.appendChild(app.view);
 
     // load the texture we need
-    PIXI.loader.add(MUSHROOM, './assets/sprites/mushroom.png').load(this.load(app));
+    PIXI.loader.add(MUSHROOM, './assets/sprites/mushroom.png');
+    each(MapData.tiles, (path, id) => {
+      PIXI.loader.add(id, path);
+    });
+    PIXI.loader.load(this.load(app));
   }
 
   load = (app) => (loader, resources) => {
-    console.log(resources);
-    // This creates a texture from a 'bunny.png' image
-    const bunny = new PIXI.Sprite(resources[MUSHROOM].texture);
+    const map: Map = parseMap(MapData);
+    map.map((tile: Tile) => {
+      const graphic: PIXI.Sprite = new PIXI.Sprite(resources[tile.tileId].texture);
 
-    // Setup the position of the bunny
-    bunny.x = app.renderer.width / 2;
-    bunny.y = app.renderer.height / 2;
+      // Setup the position of the bunny
+      graphic.x = tile.x;
+      graphic.y = tile.y;
 
-    // Rotate around the center
-    bunny.anchor.x = 0.5;
-    bunny.anchor.y = 0.5;
+      app.stage.addChild(graphic);
 
-    // Add the bunny to the scene we are building
-    app.stage.addChild(bunny);
+    });
 
     // Listen for frame updates
-    app.ticker.add(() => {
-      // each frame we spin the bunny around a bit
-      bunny.rotation += 0.01;
-    });
+    app.ticker.add(this.render);
+  };
+
+  render() {
+
   }
 }
