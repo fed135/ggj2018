@@ -20,7 +20,7 @@ function init() {
 			(document.getElementById('lobby_name') as HTMLInputElement).value = urlMatch[1];
 		}, 10);
     }
-    
+
     // Bind UI controls
     document.getElementById('lobby_btn').onclick = handleJoin;
 }
@@ -31,8 +31,8 @@ function handleJoin(param) {
     const tag = document.getElementById('game');
 
     // Enter full screen
-    if (tag.hasOwnProperty('requestFullscreen')) tag.requestFullscreen();	
-    else if (tag.hasOwnProperty('webkitRequestFullscreen')) tag.webkitRequestFullscreen();		
+    if (tag.hasOwnProperty('requestFullscreen')) tag.requestFullscreen();
+    else if (tag.hasOwnProperty('webkitRequestFullscreen')) tag.webkitRequestFullscreen();
 
     const matchName = '' + (document.getElementById('lobby_name') as HTMLInputElement).value.toLowerCase();
 
@@ -67,8 +67,7 @@ function enterLobby() {
   document.getElementById('lobby').style.display = 'block';
   document.getElementById('splash').style.display = 'none';
   document.getElementById('lobby_name_label').innerHTML = match.name;
-  document.getElementById('ready_btn').onclick = handleReady;
-  
+
 }
 
 function handleReady() {
@@ -80,7 +79,7 @@ function handleReady() {
 }
 
 function handleMatchUpdate(packet) {
-  match.state = packet.state;
+  match = packet;
   if (match.state === 'game') {
     new Game(document.getElementById('game') as HTMLDivElement);
     document.getElementById('lobby').style.display = 'none';
@@ -92,7 +91,7 @@ function handleMatchUpdate(packet) {
         }
         document.getElementById(`player${i + 1}`).className = (i < match.players)?'player':'player none';
     }
-  };
+  }
 }
 
 function handleQuit() {
@@ -100,4 +99,3 @@ function handleQuit() {
 }
 
 init();
-
