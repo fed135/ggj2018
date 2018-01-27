@@ -3,6 +3,7 @@
 	"version": "1.0.0",
 	"description": "A good place to get started with Phaser and TypeScript development",
 	"scripts": {
+		"build": "exit 0;",
 		"client:start": "webpack-dev-server --config webpack.dev.config.js -d --inline --hot --progress --no-info --port 8000",
 		"client:build": "rimraf ./dist && webpack --config webpack.prod.config.js -p --progress",
 		"server:start": "nodemon --config config/nodemon.json --exec 'ts-node' server/index.ts"
