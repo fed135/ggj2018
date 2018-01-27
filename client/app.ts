@@ -80,7 +80,7 @@ function handleReady() {
 }
 
 function handleMatchUpdate(packet) {
-  match.state = packet.state;
+  match = packet;
   if (match.state === 'game') {
     new Game(document.getElementById('game') as HTMLDivElement);
     document.getElementById('lobby').style.display = 'none';
