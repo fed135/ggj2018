@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "Game about transmission",
   "scripts": {
-    "build": "webpack --config webpack.prod.config.js",
+    "build": "webpack --config webpack.prod.config.js --progress",
     "serve": "http-server ./dist -p 80",
     "test": "mocha --require ts-node/register --watch --watch-extensions js,ts,tsx client/test/index.ts",
     "start": "webpack-dev-server --config webpack.dev.config.js -d --inline --hot --progress --no-info --port 8000"
