@@ -19,7 +19,6 @@ module.exports = {
   output: {
     filename: '[name].bundle.js',
     path: path.resolve('./dist'),
-    publicPath: '/ggj2018'
   },
   plugins: [
     new CopyWebpackPlugin([
