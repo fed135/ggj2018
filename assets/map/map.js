@@ -3,7 +3,7 @@ export default {
   tileWidth: 100,
   tileHeight: 100,
   tiles: {
-    0: 'default.png',
+    0: './assets/sprites/mushroom.png',
   },
 
   map: [
