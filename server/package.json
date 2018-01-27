@@ -1,0 +1,16 @@
+{
+  "name": "ggj2017_server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "NODE_ENV=production node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "kalm-websocket": "^3.3.0",
+    "kalm": "^2.5.0"
+  }
+}

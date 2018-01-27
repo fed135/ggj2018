@@ -1,0 +1,29 @@
+{
+  "name": "ggj2017_remote",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server --config webpack.conf.js --host 0.0.0.0"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-loader": "^7.1.2",
+    "babel-plugin-inferno": "^3.4.0",
+    "babel-plugin-transform-react-jsx": "^6.24.1",
+    "babel-preset-env": "^1.6.1",
+    "webpack": "^3.10.0",
+    "webpack-dev-server": "^2.11.0",
+    "worker-loader": "^1.1.0"
+  },
+  "dependencies": {
+    "inferno": "3.10.0",
+    "inferno-component": "3.10.0",
+    "inferno-create-element": "3.10.0",
+    "kalm": "^2.5.0",
+    "kalm-websocket": "^3.3.0"
+  }
+}
