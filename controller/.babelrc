@@ -1,9 +1,0 @@
-{
-    "env": {
-        "development": {
-            "presets": ["env"]
-        }
-    },
-    /* Add plugins here**/
-    "plugins": ["transform-react-jsx", "inferno"]
-}
