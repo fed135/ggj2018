@@ -1,7 +1,7 @@
-import {it, describe} from 'mocha';
+import 'mocha';
 import {expect} from 'chai';
 import mapData from '../assets/map/map_dev';
-import {Map, mapValidation, parseMap} from "../map/Map";
+import {Map, MapData, mapValidation, parseMap} from "../map/Map";
 
 describe('mapValidation', () => {
   it('should return true if the data is valid', () => {
@@ -10,7 +10,7 @@ describe('mapValidation', () => {
   });
   it('should throw an error if data is invalid', () => {
     try {
-      mapValidation({});
+      mapValidation({} as MapData);
     } catch (error) {
       expect(error.message).to.not.be.undefined;
     }
