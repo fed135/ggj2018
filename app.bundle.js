@@ -25,7 +25,9 @@ var match = {
     players: 0,
     color: null
 };
+var Net;
 function init() {
+    Net = new Net_1.default();
     var urlMatch = window.location.href.split('#');
     if (urlMatch[1]) {
         setTimeout(function () {
@@ -50,8 +52,8 @@ function handleJoin(param) {
             return false;
         }
         match.name = matchName;
-        Net_1.default.subscribe('lobby.join', handleReply, true);
-        Net_1.default.send('lobby.join', {
+        Net.subscribe('lobby.join', handleReply, true);
+        Net.send('lobby.join', {
             match: matchName
         });
     }
@@ -59,7 +61,7 @@ function handleJoin(param) {
 function handleReply(packet) {
     locked = false;
     if (packet.state) {
-        Net_1.default.subscribe('lobby.update', handleMatchUpdate);
+        Net.subscribe('lobby.update', handleMatchUpdate);
         match.state = packet.state;
         // Show lobby
         enterLobby();
@@ -78,8 +80,10 @@ function enterLobby() {
 function handleReady() {
     if (!locked) {
         locked = true;
-        Net_1.default.send('lobby.update', { state: 'game', match: match.name });
-        setTimeout(function () { locked = false; }, 2000);
+        Net.send('lobby.update', { state: 'game', match: match.name });
+        setTimeout(function () {
+            locked = false;
+        }, 2000);
     }
 }
 function handleMatchUpdate(packet) {
@@ -96,7 +100,6 @@ function handleMatchUpdate(packet) {
             document.getElementById("player" + (i + 1)).className = (i < match.players) ? 'player' : 'player none';
         }
     }
-    ;
 }
 function handleQuit() {
     window.location.href = '/';
@@ -188,7 +191,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var lodash_1 = __webpack_require__(90);
-var isIn = function (keys) { return function (key) { return keys.includes(key); }; };
+var isIn = function (keys) { return function (key) {
+    var isPresent = keys.includes(key);
+    if (!isPresent) {
+        console.log("Key " + key + " can't be found inside " + keys);
+    }
+    return isPresent;
+}; };
 exports.mapValidation = function (mapData) {
     if (mapData.width <= 0) {
         throw new Error("Map \"width\" should be greater than 0. Found " + mapData.width);
@@ -200,6 +209,7 @@ exports.mapValidation = function (mapData) {
         throw new Error('Map "map" should not be empty');
     }
     var tileKeys = lodash_1.keys(mapData.tiles).map(parseInt);
+    console.log('Loading tile keys', tileKeys);
     if (!lodash_1.uniq(mapData.map).every(isIn(tileKeys))) {
         throw new Error('A key was used in Map.map that was not defined in Map.tiles');
     }
@@ -269,7 +279,7 @@ class NetworkClient extends __WEBPACK_IMPORTED_MODULE_1_events__["EventEmitter"]
 	}
 }
 
-/* harmony default export */ __webpack_exports__["default"] = (new NetworkClient());
+/* harmony default export */ __webpack_exports__["default"] = (NetworkClient);
 
 /***/ }),
 
