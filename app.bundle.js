@@ -72,6 +72,7 @@ function enterLobby() {
     document.getElementById('lobby').style.display = 'block';
     document.getElementById('splash').style.display = 'none';
     document.getElementById('lobby_name_label').innerHTML = match.name;
+    document.getElementById('ready_btn').onclick = handleReady;
 }
 function handleReady() {
     if (!locked) {
@@ -81,7 +82,7 @@ function handleReady() {
     }
 }
 function handleMatchUpdate(packet) {
-    match = packet;
+    match.state = packet.state;
     if (match.state === 'game') {
         new Game_1.default(document.getElementById('game'));
         document.getElementById('lobby').style.display = 'none';
