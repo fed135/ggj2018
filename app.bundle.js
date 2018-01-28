@@ -305,7 +305,7 @@ class NetworkClient extends __WEBPACK_IMPORTED_MODULE_1_events__["EventEmitter"]
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = function() {
-  return new Worker(__webpack_require__.p + "e1ac5bdead8c14cad6d1.worker.js");
+  return new Worker(__webpack_require__.p + "a6966dff66ac2321dd57.worker.js");
 };
 
 /***/ }),
