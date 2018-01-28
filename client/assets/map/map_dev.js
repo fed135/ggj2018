@@ -5,7 +5,7 @@ export default {
   tiles: {
     0: 'default.png',
   },
-
+  layers:[],
   map: [
     0, 0,
     0, 0,

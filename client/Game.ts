@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
-import MapData from './assets/map/map';
-import {Map, parseMap, Tile} from "./map/Map";
+import rawMapData from './assets/map/map';
+import {Map, parseMap, Tile, MapData} from "./map/Map";
 import {each} from 'lodash';
 
 const MUSHROOM = 'mushroom';
@@ -22,15 +22,19 @@ export default class Game {
     // load the texture we need
     PIXI.loader.add(MUSHROOM, './assets/sprites/mushroom.png');
     PIXI.loader.add(AVATAR, './assets/sprites/mushroom.png');
-    each(MapData.tiles, (path, id) => {
+    each(rawMapData.layers, (path) => {
+      if(path){
+        PIXI.loader.add(path, path);
+      }
+    });
+    each(rawMapData.tiles, (path, id) => {
       PIXI.loader.add(id, path);
     });
     PIXI.loader.load(this.load(app));
   }
 
   load = (app) => (loader, resources) => {
-    const map: Map = parseMap(MapData);
-    loadMap(app.stage, map, resources);
+    loadStaticLayers(app.stage, rawMapData, resources);
 
     // Listen for frame updates
     app.ticker.add(this.render);
@@ -41,7 +45,18 @@ export default class Game {
   }
 }
 
-const loadMap = (container: PIXI.Container, map: Map, resources) => {
+const loadStaticLayers = (container: PIXI.Container, map: MapData, resources) => {
+  map.layers.forEach((layer: string) => {
+    if (layer === null) {
+      loadInteractiveLayer(container, parseMap(rawMapData), resources);
+    } else {
+      const graphic: PIXI.Sprite = new PIXI.Sprite(resources[layer].texture);
+      container.addChild(graphic);
+    }
+  });
+};
+
+const loadInteractiveLayer = (container: PIXI.Container, map: Map, resources) => {
   map.map((tile: Tile) => {
     const graphic: PIXI.Sprite = new PIXI.Sprite(resources[tile.tileId].texture);
 
@@ -50,6 +65,5 @@ const loadMap = (container: PIXI.Container, map: Map, resources) => {
     graphic.y = tile.y;
 
     container.addChild(graphic);
-
   });
 };
