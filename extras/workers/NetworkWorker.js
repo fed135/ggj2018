@@ -1,12 +1,12 @@
 import Kalm from 'kalm';
-import ws from 'kalm-websocket';
+import wss from 'kalm-secure-websocket';
 
 class NetworkWorker {
 	constructor(scope) {
 		this.socket = Kalm.connect({
 			hostname: '54.209.253.88',
 			port: 9000,
-			transport: ws,
+			transport: wss,
 			profile: { tick: 0 }
 		});
 
