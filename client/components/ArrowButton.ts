@@ -1,5 +1,4 @@
 import * as PIXI from 'pixi.js';
-import Net from '../../extras/system/Net';
 import { EventEmitter } from 'events';
 
 export default class ArrowButton {

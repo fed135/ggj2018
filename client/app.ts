@@ -1,12 +1,11 @@
-import Game from './Game';
-
+import Game, {match} from './Game';
 import NetworkClient from '../extras/system/Net';
 
 // Local vars
 
 let locked = false;
 let fullScreen = false;
-let match = {
+let match: match = {
   name: null,
   state: 'splash',
   players: 0,
@@ -112,7 +111,7 @@ function handleQuit() {
 }
 
 const transitionToGame = (): any => {
-  new Game(document.getElementById('game') as HTMLDivElement, Net);
+  new Game(document.getElementById('game') as HTMLDivElement, Net, match);
   document.getElementById('lobby').style.display = 'none';
   document.getElementById('splash').style.display = 'none';
 };

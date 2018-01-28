@@ -7,16 +7,25 @@ import NetworkClient from '../extras/system/Net';
 import {EventEmitter} from 'events';
 import Avatar, {Action} from "./components/Avatar";
 import {TweenLite} from 'gsap';
+import InputAccumulator from './InputAccumulator';
 
 const MUSHROOM = 'mushroom';
 const AVATAR = 'avatar';
 
+export type match = {
+  name: string,
+  state: string,
+  players: number,
+  color: number
+};
 
 export default class Game {
 
   public inputManager = new EventEmitter();
+  private avatar: Avatar = null;
+  private inputAccumulator = null;
 
-  constructor(container: HTMLDivElement, Net: NetworkClient) {
+  constructor(container: HTMLDivElement, Net: NetworkClient, match: match) {
     // The application will create a renderer using WebGL, if possible,
     // with a fallback to a canvas render. It will also setup the ticker
     // and the root stage PIXI.Container
@@ -39,19 +48,31 @@ export default class Game {
     });
     PIXI.loader.load(this.load(app));
 
-    this.inputManager.on('input', this.handlePlayerInput);
+    this.inputManager.on('input', (action) => {
+      console.log('input', action);
+      this.inputAccumulator.push({
+        color: match.color,
+        direction: action.direction
+      });
+    });
+    this.inputManager.on('moveAccepted', (action) => {
+      Net.send('player.move', action);
+    });
+    this.inputManager.on('movesAllAccepted', this.startPlayback);
+    this.inputAccumulator = new InputAccumulator(match, this.inputManager);
   }
 
-  handlePlayerInput(action) {
-    console.log('input', action);
+  startPlayback() {
+    console.log('All moves done, starting playback', this.inputAccumulator.list)
+    this.avatar.move(this.inputAccumulator.list, rawMapData);
   }
 
   load = (app) => (loader, resources) => {
     loadStaticLayers(app.stage, rawMapData, resources);
     const ui = new UIWrapper(app.stage, this.inputManager);
 
-    const avatar = new Avatar();
-    app.stage.addChild(avatar);
+    this.avatar = new Avatar();
+    app.stage.addChild(this.avatar);
 
     // Listen for frame updates
     app.ticker.add(this.render);

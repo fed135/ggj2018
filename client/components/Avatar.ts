@@ -2,10 +2,10 @@ import {TimelineLite, Power0} from 'gsap';
 import {MapData} from "../map/Map";
 
 export enum Action {
-  UP,
-  DOWN,
-  LEFT,
-  RIGHT,
+  UP='top',
+  DOWN='bottom',
+  LEFT='left',
+  RIGHT='right',
 }
 
 type Point = {
@@ -14,7 +14,7 @@ type Point = {
 }
 
 type MoveCommands = {
-  [move: number]: (
+  [move: string]: (
     timeLine: TimelineLite,
     target: PIXI.Container,
     map: MapData,

@@ -1,6 +1,9 @@
 import * as PIXI from 'pixi.js';
 import ArrowButton from './ArrowButton';
+import MoveIndicator from './MoveIndicator';
+import {Action} from "../components/Avatar";
 import { EventEmitter } from 'events';
+import config from '../config';
 
 export default class UIWrapper {
 
@@ -12,6 +15,8 @@ export default class UIWrapper {
         right: null,
         bottom: null,
     };
+
+    public moves = [];
 
     constructor(container: PIXI.Container, inputManager: EventEmitter) {
         const uiSize = 0.16;
@@ -26,11 +31,17 @@ export default class UIWrapper {
 
         // Arrows
         this.inputs = {
-            top: new ArrowButton(this.box, 'top', inputManager),
-            left: new ArrowButton(this.box, 'left', inputManager),
-            right: new ArrowButton(this.box, 'right', inputManager),
-            bottom: new ArrowButton(this.box, 'bottom', inputManager)
+            top: new ArrowButton(this.box, Action.UP, inputManager),
+            left: new ArrowButton(this.box, Action.LEFT, inputManager),
+            right: new ArrowButton(this.box, Action.RIGHT, inputManager),
+            bottom: new ArrowButton(this.box, Action.DOWN, inputManager)
         };
+
+        // Move boxes
+        this.moves.length = config.playsPerTurn;
+        for (let i = 0; i<config.playsPerTurn; i++) {
+            this.moves[i] = new MoveIndicator(this.box, i, inputManager);
+        }
 
         // Add wrapper
         container.addChild(this.box);
