@@ -1,9 +1,9 @@
 import {MapData, parseMap, Tile} from "./MapParser";
-import Point = PIXI.Point;
 
 const loadStaticLayers = (container: PIXI.Container, specialLayer: PIXI.Sprite, rawMapData: MapData, resources) => {
-  rawMapData.layers.forEach((layer: string) => {
+  rawMapData.layers.reverse().forEach((layer: string) => {
     if (layer === null) {
+      console.log('LAYER');
       // Fill and add the special layer
       loadInteractiveLayer(specialLayer, parseMap(rawMapData), resources);
       container.addChild(specialLayer);
@@ -22,7 +22,7 @@ const loadInteractiveLayer = (container: PIXI.Container, tiles: Tile[], resource
     graphic.x = tile.x;
     graphic.y = tile.y;
 
-    container.addChild(graphic);
+    container.addChildAt(graphic, 0);
   });
 };
 
