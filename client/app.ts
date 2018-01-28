@@ -106,6 +106,7 @@ function handleQuit() {
 const transitionToGame = (): any => {
   new Game(document.getElementById('game') as HTMLDivElement);
   document.getElementById('lobby').style.display = 'none';
+  document.getElementById('splash').style.display = 'none';
 };
 
 

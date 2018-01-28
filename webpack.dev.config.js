@@ -19,6 +19,9 @@ module.exports = {
     path: path.resolve('./dist'),
   },
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env': JSON.stringify(process.env),
+    }),
     new CopyWebpackPlugin([
       {
         from: './client/assets',
@@ -36,6 +39,9 @@ module.exports = {
       inject: 'body'
     })
   ],
+  node: {
+    process: true,
+  },
   module: {
     loaders: [
       { test: /\.png$/, use: 'url-loader?mimetype=image/png' },
