@@ -47,12 +47,9 @@ function handleJoin(param) {
         locked = true;
         var tag = document.getElementById('game');
         // Enter full screen
-        if (tag.hasOwnProperty('requestFullscreen'))
-            tag.requestFullscreen();
-        else if (tag.hasOwnProperty('webkitRequestFullscreen'))
-            tag.webkitRequestFullscreen();
-        else if (tag.hasOwnProperty('webkitRequestFullScreen'))
-            tag.webkitRequestFullScreen();
+        var fsEvent = (tag.requestFullScreen) ? "requestFullScreen" : (tag.mozRequestFullScreen) ? "mozRequestFullScreen" : (tag.webkitRequestFullScreenWithKeys) ? "webkitRequestFullScreenWithKeys" : (tag.webkitRequestFullScreen) ? "webkitRequestFullScreen" : "FullscreenError";
+        // Enter full screen
+        tag[fsEvent]();
         var matchName = '' + document.getElementById('lobby_name').value.toLowerCase();
         if (matchName === '') {
             locked = false;
