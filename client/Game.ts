@@ -52,25 +52,6 @@ export default class Game {
 
     const avatar = new Avatar();
     app.stage.addChild(avatar);
-    // TweenLite.to(avatar, 2, {x: 300});
-    // DPL DEBUG REMOVE PLZ
-    avatar.move([
-      Action.DOWN,
-      Action.RIGHT,
-      Action.DOWN,
-      Action.RIGHT,
-      Action.DOWN,
-      Action.RIGHT,
-      Action.RIGHT,
-      Action.RIGHT,
-      Action.DOWN,
-      Action.DOWN,
-      Action.DOWN,
-      Action.LEFT,
-      Action.UP,
-      Action.UP,
-    ], rawMapData);
-    // DPL DEBUG END
 
     // Listen for frame updates
     app.ticker.add(this.render);
