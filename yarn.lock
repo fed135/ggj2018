@@ -6,6 +6,10 @@
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/@types/chai/-/chai-4.1.2.tgz#f1af664769cfb50af805431c407425ed619daa21"
 
+"@types/gsap@^1.19.1":
+  version "1.19.1"
+  resolved "https://registry.yarnpkg.com/@types/gsap/-/gsap-1.19.1.tgz#ee93590b1ef7dc86b0b779e94e38b5bad6e8c678"
+
 "@types/howler@^2.0.5":
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/@types/howler/-/howler-2.0.5.tgz#eb5eb99b943fe423abe3ca713163ed911e2a0d76"
@@ -2591,11 +2595,11 @@ jsprim@^1.2.2:
     json-schema "0.2.3"
     verror "1.10.0"
 
-kalm-websocket@^3.3.0:
-  version "3.3.0"
-  resolved "https://registry.yarnpkg.com/kalm-websocket/-/kalm-websocket-3.3.0.tgz#5c26c88ce6ab286b06028e6b24e641c9c40ea4eb"
+kalm-secure-websocket@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/kalm-secure-websocket/-/kalm-secure-websocket-1.0.0.tgz#72c5aa88b02a2bdb5b70d8ee6cbce30d247d4397"
   dependencies:
-    uws "^8.14.0"
+    uws "^9.14.0"
 
 kalm@^2.6.1:
   version "2.6.1"
@@ -4783,9 +4787,9 @@ uuid@^3.0.0, uuid@^3.0.1:
   version "3.2.1"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.2.1.tgz#12c528bb9d58d0b9265d9a2f6f0fe8be17ff1f14"
 
-uws@^8.14.0:
-  version "8.14.1"
-  resolved "https://registry.yarnpkg.com/uws/-/uws-8.14.1.tgz#de09619f305f6174d5516a9c6942cb120904b20b"
+uws@^9.14.0:
+  version "9.14.0"
+  resolved "https://registry.yarnpkg.com/uws/-/uws-9.14.0.tgz#fac8386befc33a7a3705cbd58dc47b430ca4dd95"
 
 v8flags@^3.0.0:
   version "3.0.1"
