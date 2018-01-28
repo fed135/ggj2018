@@ -5,7 +5,7 @@ import {EventEmitter} from 'events';
 import config from '../config';
 import {Action} from "../Step";
 
-export default class UIWrapper {
+export default class UIWrapper extends PIXI.Sprite {
 
   private box = new PIXI.Graphics();
 
@@ -18,7 +18,9 @@ export default class UIWrapper {
 
   public moves = [];
 
-  constructor(container: PIXI.Container, inputManager: EventEmitter) {
+  constructor(public width: number, public height: number, inputManager: EventEmitter) {
+    super();
+
     const hudRatio = (window.innerHeight / 400);
     const uiSize = 210 * hudRatio;
 
@@ -46,6 +48,6 @@ export default class UIWrapper {
     }
 
     // Add wrapper
-    container.addChild(this.box);
+    this.addChild(this.box);
   }
 }

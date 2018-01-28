@@ -1,5 +1,5 @@
-import {Power0, TimelineLite} from 'gsap';
-import {MapData} from "./map/Map";
+import {TimelineLite, Power0} from 'gsap';
+import {MapData} from "./map/MapParser";
 
 export enum Action {
   UP = 'top',
@@ -39,6 +39,24 @@ type StepValidator = (
   step: Step,
 ) => void;
 
+
+// DPL commented so it wont break the build if commited. Delete this code if you can read this.
+// const validationSteps: StepValidator[] = [];
+// export const stepBusinessLogic = (
+//   timeLine: TimelineLite,
+//   target: PIXI.Container,
+//   map: MapData,
+//   lastPosition: Point,
+//   step: Step
+// ) => {
+//   validationSteps.forEach((validation) => validation(
+//     timeLine,
+//     target,
+//     map,
+//     lastPosition,
+//     step,
+//   ));
+// };
 
 const MOVES: MoveCommands = {
   [Action.UP]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {

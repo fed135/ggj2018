@@ -18,9 +18,6 @@ export interface Tile {
   tileId: number,
 }
 
-export type Map = Tile[];
-
-
 const isIn = (keys) => (key) => {
   const isPresent = keys.includes(key);
   if (!isPresent) {
@@ -51,7 +48,7 @@ export const mapValidation = (mapData: MapData): boolean => {
   return true;
 };
 
-export const parseMap = (mapData: MapData): Map => {
+export const parseMap = (mapData: MapData): Tile[] => {
   mapValidation(mapData);
 
   return mapData.map.map((tileId, index) => {

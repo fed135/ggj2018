@@ -1,6 +1,4 @@
 
-
-
 export default class Avatar extends PIXI.Sprite {
   private graphic: PIXI.Graphics = new PIXI.Graphics();
 

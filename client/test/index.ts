@@ -1,7 +1,7 @@
 import 'mocha';
 import {expect} from 'chai';
 import mapData from '../assets/map/map_dev';
-import {Map, MapData, mapValidation, parseMap} from "../map/Map";
+import {MapData, mapValidation, parseMap, Tile} from "../map/MapParser";
 
 describe('mapValidation', () => {
   it('should return true if the data is valid', () => {
@@ -32,7 +32,7 @@ describe('map utils', () => {
         0, 0,
       ],
     };
-    const finalMap: Map = parseMap(mockedMap);
+    const finalMap: Tile[] = parseMap(mockedMap);
 
     expect(finalMap.length).to.be.equal(mockedMap.map.length);
 

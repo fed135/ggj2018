@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import rawMapData from './assets/map/map';
-import {Map, MapData, parseMap, Tile} from "./map/Map";
 import {each} from 'lodash';
 import UIWrapper from './components/UIWrapper';
 import NetworkClient from '../extras/system/Net';
@@ -8,6 +7,8 @@ import {EventEmitter} from 'events';
 import Avatar from "./components/Avatar";
 import InputAccumulator from './InputAccumulator';
 import {moveAvatar} from "./Step";
+import MapView from "./map/MapView";
+import Point = PIXI.Point;
 
 const MUSHROOM = 'mushroom';
 const AVATAR = 'avatar';
@@ -63,18 +64,23 @@ export default class Game {
   }
 
   startPlayback() {
-    console.log('All moves done, starting playback', this.inputAccumulator.list)
     moveAvatar(this.avatar, this.inputAccumulator.list.map((move) => {
       return move.direction;
     }), rawMapData);
   }
 
   load = (app) => (loader, resources) => {
-    loadStaticLayers(app.stage, rawMapData, resources);
-    const ui = new UIWrapper(app.stage, this.inputManager);
+    const gameContainer: PIXI.Sprite = new PIXI.Sprite();
 
+    const avatarLayer: PIXI.Sprite = new PIXI.Sprite();
     this.avatar = new Avatar();
-    app.stage.addChild(this.avatar);
+    avatarLayer.addChild(this.avatar);
+
+    gameContainer.addChild(new MapView(resources, avatarLayer, rawMapData));
+    gameContainer.addChild(new UIWrapper(40, 30, this.inputManager));
+    gameContainer.scale = new Point(.3, .3);
+
+    app.stage.addChild(gameContainer);
 
     // Listen for frame updates
     app.ticker.add(this.render);
@@ -85,25 +91,3 @@ export default class Game {
   }
 }
 
-const loadStaticLayers = (container: PIXI.Container, map: MapData, resources) => {
-  map.layers.forEach((layer: string) => {
-    if (layer === null) {
-      loadInteractiveLayer(container, parseMap(rawMapData), resources);
-    } else {
-      const graphic: PIXI.Sprite = new PIXI.Sprite(resources[layer].texture);
-      container.addChild(graphic);
-    }
-  });
-};
-
-const loadInteractiveLayer = (container: PIXI.Container, map: Map, resources) => {
-  map.map((tile: Tile) => {
-    const graphic: PIXI.Sprite = new PIXI.Sprite(resources[tile.tileId].texture);
-
-    // Setup the position of the bunny
-    graphic.x = tile.x;
-    graphic.y = tile.y;
-
-    container.addChild(graphic);
-  });
-};
