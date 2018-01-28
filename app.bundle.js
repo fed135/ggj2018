@@ -183,12 +183,13 @@ var Game = /** @class */ (function () {
         });
         PIXI.loader.load(this.load(app));
         this.inputManager.on('input', function (action) {
-            console.log('input', action);
+            navigator.vibrate([100, 10, 100]);
             _this.inputAccumulator.push({
                 color: match.color,
                 direction: action.direction
             });
         });
+        Net.subscribe('player.move', this.inputAccumulator.push.bind(this.inputAccumulator));
         this.inputManager.on('moveAccepted', function (action) {
             Net.send('player.move', action);
         });
