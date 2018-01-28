@@ -15,7 +15,7 @@ module.exports = __webpack_require__(348);
 /* WEBPACK VAR INJECTION */(function(process) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Game_1 = __webpack_require__(349);
-var Net_1 = __webpack_require__(358);
+var Net_1 = __webpack_require__(359);
 // Local vars
 var locked = false;
 var fullScreen = false;
@@ -134,13 +134,14 @@ else {
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(11);
 var map_1 = __webpack_require__(350);
-var Map_1 = __webpack_require__(351);
 var lodash_1 = __webpack_require__(92);
-var UIWrapper_1 = __webpack_require__(352);
+var UIWrapper_1 = __webpack_require__(351);
 var events_1 = __webpack_require__(94);
-var Avatar_1 = __webpack_require__(356);
-var InputAccumulator_1 = __webpack_require__(357);
+var Avatar_1 = __webpack_require__(355);
+var InputAccumulator_1 = __webpack_require__(356);
 var Step_1 = __webpack_require__(93);
+var MapView_1 = __webpack_require__(357);
+var Point = PIXI.Point;
 var MUSHROOM = 'mushroom';
 var AVATAR = 'avatar';
 var Game = /** @class */ (function () {
@@ -150,10 +151,14 @@ var Game = /** @class */ (function () {
         this.avatar = null;
         this.inputAccumulator = null;
         this.load = function (app) { return function (loader, resources) {
-            loadStaticLayers(app.stage, map_1.default, resources);
-            var ui = new UIWrapper_1.default(app.stage, _this.inputManager);
+            var gameContainer = new PIXI.Sprite();
+            var avatarLayer = new PIXI.Sprite();
             _this.avatar = new Avatar_1.default();
-            app.stage.addChild(_this.avatar);
+            avatarLayer.addChild(_this.avatar);
+            gameContainer.addChild(new MapView_1.default(resources, avatarLayer, map_1.default));
+            gameContainer.addChild(new UIWrapper_1.default(40, 30, _this.inputManager));
+            gameContainer.scale = new Point(.3, .3);
+            app.stage.addChild(gameContainer);
             // Listen for frame updates
             app.ticker.add(_this.render);
         }; };
@@ -190,7 +195,6 @@ var Game = /** @class */ (function () {
         this.inputAccumulator = new InputAccumulator_1.default(match, this.inputManager);
     }
     Game.prototype.startPlayback = function () {
-        console.log('All moves done, starting playback', this.inputAccumulator.list);
         Step_1.moveAvatar(this.avatar, this.inputAccumulator.list.map(function (move) {
             return move.direction;
         }), map_1.default);
@@ -200,26 +204,6 @@ var Game = /** @class */ (function () {
     return Game;
 }());
 exports.default = Game;
-var loadStaticLayers = function (container, map, resources) {
-    map.layers.forEach(function (layer) {
-        if (layer === null) {
-            loadInteractiveLayer(container, Map_1.parseMap(map_1.default), resources);
-        }
-        else {
-            var graphic = new PIXI.Sprite(resources[layer].texture);
-            container.addChild(graphic);
-        }
-    });
-};
-var loadInteractiveLayer = function (container, map, resources) {
-    map.map(function (tile) {
-        var graphic = new PIXI.Sprite(resources[tile.tileId].texture);
-        // Setup the position of the bunny
-        graphic.x = tile.x;
-        graphic.y = tile.y;
-        container.addChild(graphic);
-    });
-};
 
 
 /***/ }),
@@ -235,10 +219,10 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
   tileHeight: 100,
   tiles: {
     0: './assets/sprites/bg.png',
-	1: './assets/sprites/end_1.png',
-	2: './assets/sprites/end_2.png',
-	3: './assets/sprites/end_3.png',
-	4: './assets/sprites/end_4.png',
+    1: './assets/sprites/end_1.png',
+    2: './assets/sprites/end_2.png',
+    3: './assets/sprites/end_3.png',
+    4: './assets/sprites/end_4.png',
     5: './assets/sprites/block.png',
     6: './assets/sprites/start.png',
     7: './assets/sprites/trap.png',
@@ -271,47 +255,63 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
-var lodash_1 = __webpack_require__(92);
-var isIn = function (keys) { return function (key) {
-    var isPresent = keys.includes(key);
-    if (!isPresent) {
-        console.log("Key " + key + " can't be found inside " + keys);
-    }
-    return isPresent;
-}; };
-exports.mapValidation = function (mapData) {
-    if (mapData.width <= 0) {
-        throw new Error("Map \"width\" should be greater than 0. Found " + mapData.width);
-    }
-    if (lodash_1.isEmpty(mapData.tiles)) {
-        throw new Error('Map "tiles" should not be empty');
-    }
-    if (lodash_1.isEmpty(mapData.map)) {
-        throw new Error('Map "map" should not be empty');
-    }
-    var keyList = lodash_1.keys(mapData.tiles);
-    console.log('keyList', keyList);
-    var tileKeys = keyList.map(function (key) { return parseInt(key); });
-    console.log('Loading tile keys', tileKeys);
-    if (!lodash_1.uniq(mapData.map).every(isIn(tileKeys))) {
-        throw new Error('A key was used in Map.map that was not defined in Map.tiles');
-    }
-    return true;
-};
-exports.parseMap = function (mapData) {
-    exports.mapValidation(mapData);
-    return mapData.map.map(function (tileId, index) {
-        return {
-            x: Math.floor(index % mapData.width) * mapData.tileWidth,
-            y: Math.floor(index / mapData.width) * mapData.tileHeight,
-            width: mapData.tileWidth,
-            height: mapData.tileHeight,
-            resourceUrl: mapData.tiles[tileId],
-            tileId: tileId,
+var PIXI = __webpack_require__(11);
+var ArrowButton_1 = __webpack_require__(352);
+var MoveIndicator_1 = __webpack_require__(353);
+var config_1 = __webpack_require__(37);
+var Step_1 = __webpack_require__(93);
+var UIWrapper = /** @class */ (function (_super) {
+    __extends(UIWrapper, _super);
+    function UIWrapper(width, height, inputManager) {
+        var _this = _super.call(this) || this;
+        _this.width = width;
+        _this.height = height;
+        _this.box = new PIXI.Graphics();
+        _this.inputs = {
+            top: null,
+            left: null,
+            right: null,
+            bottom: null,
         };
-    });
-};
+        _this.moves = [];
+        var hudRatio = (window.innerHeight / 400);
+        var uiSize = 210 * hudRatio;
+        // Color
+        _this.box.beginFill(0xDDDDDD, 0.8);
+        _this.box.drawRect(0, 0, uiSize, window.innerHeight);
+        _this.box.endFill();
+        _this.box.width = uiSize;
+        _this.box.height = window.innerHeight;
+        // Arrows
+        _this.inputs = {
+            top: new ArrowButton_1.default(_this.box, Step_1.Action.UP, hudRatio, inputManager),
+            left: new ArrowButton_1.default(_this.box, Step_1.Action.LEFT, hudRatio, inputManager),
+            right: new ArrowButton_1.default(_this.box, Step_1.Action.RIGHT, hudRatio, inputManager),
+            bottom: new ArrowButton_1.default(_this.box, Step_1.Action.DOWN, hudRatio, inputManager)
+        };
+        // Move boxes
+        _this.moves.length = config_1.default.playsPerTurn;
+        for (var i = 0; i < config_1.default.playsPerTurn; i++) {
+            _this.moves[i] = new MoveIndicator_1.default(_this.box, i, hudRatio, inputManager);
+        }
+        // Add wrapper
+        _this.addChild(_this.box);
+        return _this;
+    }
+    return UIWrapper;
+}(PIXI.Sprite));
+exports.default = UIWrapper;
 
 
 /***/ }),
@@ -323,70 +323,21 @@ exports.parseMap = function (mapData) {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(11);
-var ArrowButton_1 = __webpack_require__(353);
-var MoveIndicator_1 = __webpack_require__(354);
-var config_1 = __webpack_require__(37);
-var Step_1 = __webpack_require__(93);
-var UIWrapper = /** @class */ (function () {
-    function UIWrapper(container, inputManager) {
-        this.box = new PIXI.Graphics();
-        this.inputs = {
-            top: null,
-            left: null,
-            right: null,
-            bottom: null,
-        };
-        this.moves = [];
-        var uiSize = 0.16;
-        // Color
-        this.box.beginFill(0xDDDDDD, 0.8);
-        this.box.drawRect(0, 0, container.width * uiSize, container.height);
-        this.box.endFill();
-        this.box.width = container.width * uiSize;
-        this.box.height = container.height;
-        // Arrows
-        this.inputs = {
-            top: new ArrowButton_1.default(this.box, Step_1.Action.UP, inputManager),
-            left: new ArrowButton_1.default(this.box, Step_1.Action.LEFT, inputManager),
-            right: new ArrowButton_1.default(this.box, Step_1.Action.RIGHT, inputManager),
-            bottom: new ArrowButton_1.default(this.box, Step_1.Action.DOWN, inputManager)
-        };
-        // Move boxes
-        this.moves.length = config_1.default.playsPerTurn;
-        for (var i = 0; i < config_1.default.playsPerTurn; i++) {
-            this.moves[i] = new MoveIndicator_1.default(this.box, i, inputManager);
-        }
-        // Add wrapper
-        container.addChild(this.box);
-    }
-    return UIWrapper;
-}());
-exports.default = UIWrapper;
-
-
-/***/ }),
-
-/***/ 353:
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-var PIXI = __webpack_require__(11);
 var ArrowButton = /** @class */ (function () {
-    function ArrowButton(container, direction, inputManager) {
+    function ArrowButton(container, direction, hudRatio, inputManager) {
         this.box = new PIXI.Graphics();
         var positions = {
-            top: [0.4, 0.1, 0],
-            left: [0.1, 0.4, Math.PI * 1.5],
-            right: [0.7, 0.4, Math.PI * 0.5],
-            bottom: [0.4, 0.7, Math.PI]
+            top: [80, 240, 0],
+            left: [30, 290, Math.PI * 1.5],
+            right: [130, 290, Math.PI * 0.5],
+            bottom: [80, 340, Math.PI]
         };
-        var buttonSize = 0.16;
+        var buttonSize = 50;
+        var arrowSize = 15;
         // Color
         this.box.lineStyle(2, 0x000000, 1);
         this.box.beginFill(0xFFFFFF, 1);
-        this.box.drawRect(container.width * positions[direction][0], container.width * positions[direction][1], container.width * buttonSize, container.width * buttonSize);
+        this.box.drawRect(positions[direction][0] * hudRatio, positions[direction][1] * hudRatio, buttonSize * hudRatio, buttonSize * hudRatio);
         this.box.endFill();
         // Interactivity
         this.box.interactive = true;
@@ -395,13 +346,13 @@ var ArrowButton = /** @class */ (function () {
         // Arrow graphics
         var arrowGraphics = new PIXI.Graphics();
         arrowGraphics.beginFill(0x333333, 0.8);
-        arrowGraphics.moveTo(0, -container.width * 0.05);
-        arrowGraphics.lineTo(container.width * 0.05, container.width * 0.05);
-        arrowGraphics.lineTo(-container.width * 0.05, container.width * 0.05);
+        arrowGraphics.moveTo(0, -arrowSize * hudRatio);
+        arrowGraphics.lineTo(arrowSize * hudRatio, arrowSize * hudRatio);
+        arrowGraphics.lineTo(-arrowSize * hudRatio, arrowSize * hudRatio);
         arrowGraphics.endFill();
         arrowGraphics.rotation = positions[direction][2];
-        arrowGraphics.x = container.width * positions[direction][0] + container.width * (buttonSize * 0.5);
-        arrowGraphics.y = container.width * positions[direction][1] + container.width * (buttonSize * 0.5);
+        arrowGraphics.x = (positions[direction][0] * hudRatio) + ((buttonSize * hudRatio) * 0.5);
+        arrowGraphics.y = (positions[direction][1] * hudRatio) + ((buttonSize * hudRatio) * 0.5);
         this.box.addChild(arrowGraphics);
         // Add wrapper
         container.addChild(this.box);
@@ -413,7 +364,7 @@ exports.default = ArrowButton;
 
 /***/ }),
 
-/***/ 354:
+/***/ 353:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -422,10 +373,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(11);
 var config_1 = __webpack_require__(37);
 var MoveIndicator = /** @class */ (function () {
-    function MoveIndicator(container, index, inputManager) {
+    function MoveIndicator(container, index, hudRatio, inputManager) {
         var _this = this;
         this.box = new PIXI.Graphics();
-        var boxSize = (0.85 / config_1.default.playsPerTurn);
+        var moveBoxSize = 190;
+        var movesPerRow = 4;
+        var boxSize = (moveBoxSize / movesPerRow);
+        var arrowSize = boxSize * 0.25;
         var positions = {
             top: 0,
             left: Math.PI * 1.5,
@@ -436,7 +390,7 @@ var MoveIndicator = /** @class */ (function () {
         this.box.lineStyle(2, 0x000000, 1);
         this.box.beginFill(0xFFFFFF, 1);
         this.box.alpha = 0.44;
-        this.box.drawRoundedRect(container.width * 0.075 + ((container.width * boxSize) * index), container.width * 1.125, container.width * boxSize, container.width * boxSize, 8);
+        this.box.drawRoundedRect((10 * hudRatio) + ((boxSize * hudRatio) * (index % movesPerRow)), (50 * hudRatio) + ((boxSize * hudRatio) * Math.floor(index / movesPerRow)), boxSize * hudRatio, boxSize * hudRatio, 8);
         this.box.endFill();
         // Lighting up
         inputManager.on('moveAccepted', function (action) {
@@ -445,13 +399,13 @@ var MoveIndicator = /** @class */ (function () {
                 // Arrow graphics
                 var arrowGraphics = new PIXI.Graphics();
                 arrowGraphics.beginFill(0x333333, 0.8);
-                arrowGraphics.moveTo(0, -container.width * 0.05);
-                arrowGraphics.lineTo(container.width * 0.05, container.width * 0.05);
-                arrowGraphics.lineTo(-container.width * 0.05, container.width * 0.05);
+                arrowGraphics.moveTo(0, -arrowSize * hudRatio);
+                arrowGraphics.lineTo(arrowSize * hudRatio, arrowSize * hudRatio);
+                arrowGraphics.lineTo(-arrowSize * hudRatio, arrowSize * hudRatio);
                 arrowGraphics.endFill();
                 arrowGraphics.rotation = positions[action.move.direction];
-                arrowGraphics.x = container.width * 0.075 + ((container.width * boxSize) * index) + container.width * (boxSize * 0.5);
-                arrowGraphics.y = container.width * 1.125 + container.width * (boxSize * 0.5);
+                arrowGraphics.x = (10 * hudRatio) + ((boxSize * hudRatio) * (index % movesPerRow)) + ((boxSize * hudRatio) * 0.5);
+                arrowGraphics.y = (50 * hudRatio) + ((boxSize * hudRatio) * Math.floor(index / movesPerRow)) + ((boxSize * hudRatio) * 0.5);
                 _this.box.addChild(arrowGraphics);
             }
         });
@@ -465,7 +419,7 @@ exports.default = MoveIndicator;
 
 /***/ }),
 
-/***/ 355:
+/***/ 354:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -8435,7 +8389,7 @@ if (_gsScope._gsDefine) { _gsScope._gsQueue.pop()(); } //necessary in case Tween
 
 /***/ }),
 
-/***/ 356:
+/***/ 355:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8468,7 +8422,7 @@ exports.default = Avatar;
 
 /***/ }),
 
-/***/ 357:
+/***/ 356:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -8522,12 +8476,115 @@ exports.default = InputAccumulator;
 
 /***/ }),
 
+/***/ 357:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var MapParser_1 = __webpack_require__(358);
+var loadStaticLayers = function (container, specialLayer, rawMapData, resources) {
+    rawMapData.layers.forEach(function (layer) {
+        if (layer === null) {
+            // Fill and add the special layer
+            loadInteractiveLayer(specialLayer, MapParser_1.parseMap(rawMapData), resources);
+            container.addChild(specialLayer);
+        }
+        else {
+            var graphic = new PIXI.Sprite(resources[layer].texture);
+            container.addChild(graphic);
+        }
+    });
+};
+var loadInteractiveLayer = function (container, tiles, resources) {
+    tiles.map(function (tile) {
+        var graphic = new PIXI.Sprite(resources[tile.tileId].texture);
+        // Setup the position of the bunny
+        graphic.x = tile.x;
+        graphic.y = tile.y;
+        container.addChild(graphic);
+    });
+};
+var MapView = /** @class */ (function (_super) {
+    __extends(MapView, _super);
+    function MapView(resources, specialLayer, rawMapData) {
+        var _this = _super.call(this) || this;
+        loadStaticLayers(_this, specialLayer, rawMapData, resources);
+        return _this;
+    }
+    return MapView;
+}(PIXI.Sprite));
+exports.default = MapView;
+
+
+/***/ }),
+
 /***/ 358:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var lodash_1 = __webpack_require__(92);
+var isIn = function (keys) { return function (key) {
+    var isPresent = keys.includes(key);
+    if (!isPresent) {
+        console.log("Key " + key + " can't be found inside " + keys);
+    }
+    return isPresent;
+}; };
+exports.mapValidation = function (mapData) {
+    if (mapData.width <= 0) {
+        throw new Error("Map \"width\" should be greater than 0. Found " + mapData.width);
+    }
+    if (lodash_1.isEmpty(mapData.tiles)) {
+        throw new Error('Map "tiles" should not be empty');
+    }
+    if (lodash_1.isEmpty(mapData.map)) {
+        throw new Error('Map "map" should not be empty');
+    }
+    var keyList = lodash_1.keys(mapData.tiles);
+    console.log('keyList', keyList);
+    var tileKeys = keyList.map(function (key) { return parseInt(key); });
+    console.log('Loading tile keys', tileKeys);
+    if (!lodash_1.uniq(mapData.map).every(isIn(tileKeys))) {
+        throw new Error('A key was used in Map.map that was not defined in Map.tiles');
+    }
+    return true;
+};
+exports.parseMap = function (mapData) {
+    exports.mapValidation(mapData);
+    return mapData.map.map(function (tileId, index) {
+        return {
+            x: Math.floor(index % mapData.width) * mapData.tileWidth,
+            y: Math.floor(index / mapData.width) * mapData.tileHeight,
+            width: mapData.tileWidth,
+            height: mapData.tileHeight,
+            resourceUrl: mapData.tiles[tileId],
+            tileId: tileId,
+        };
+    });
+};
+
+
+/***/ }),
+
+/***/ 359:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__ = __webpack_require__(359);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__ = __webpack_require__(360);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_events__);
@@ -8573,7 +8630,7 @@ class NetworkClient extends __WEBPACK_IMPORTED_MODULE_1_events__["EventEmitter"]
 
 /***/ }),
 
-/***/ 359:
+/***/ 360:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = function() {
@@ -8593,7 +8650,7 @@ var Config = /** @class */ (function () {
     }
     Config.gameWidth = 800;
     Config.gameHeight = 480;
-    Config.playsPerTurn = 4;
+    Config.playsPerTurn = 12;
     return Config;
 }());
 exports.default = Config;
@@ -25708,7 +25765,7 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var gsap_1 = __webpack_require__(355);
+var gsap_1 = __webpack_require__(354);
 var Action;
 (function (Action) {
     Action["UP"] = "top";
@@ -25720,6 +25777,23 @@ var baseMovement = {
     ease: gsap_1.Power0.easeNone
 };
 var SPEED = .62;
+// DPL commented so it wont break the build if commited. Delete this code if you can read this.
+// const validationSteps: StepValidator[] = [];
+// export const stepBusinessLogic = (
+//   timeLine: TimelineLite,
+//   target: PIXI.Container,
+//   map: MapData,
+//   lastPosition: Point,
+//   step: Step
+// ) => {
+//   validationSteps.forEach((validation) => validation(
+//     timeLine,
+//     target,
+//     map,
+//     lastPosition,
+//     step,
+//   ));
+// };
 var MOVES = (_a = {},
     _a[Action.UP] = function (timeLine, target, map, lastPosition) {
         var newPosition = __assign({}, baseMovement, lastPosition, { y: lastPosition.y -= map.tileHeight });
