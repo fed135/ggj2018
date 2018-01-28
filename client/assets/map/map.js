@@ -16,7 +16,7 @@ export default {
     './assets/map/map_layer_03.png',
     './assets/map/map_layer_02.png',
     null,
-    './assets/map/map_layer_00.png',
+    './assets/map/map_layer_00.jpg',
   ],
   map: [
     1, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 2,

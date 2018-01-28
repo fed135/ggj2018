@@ -1,22 +1,22 @@
 import * as PIXI from 'pixi.js';
 import ArrowButton from './ArrowButton';
 import MoveIndicator from './MoveIndicator';
-import {Action} from "../components/Avatar";
-import { EventEmitter } from 'events';
+import {EventEmitter} from 'events';
 import config from '../config';
+import {Action} from "../Step";
 
 export default class UIWrapper {
 
-    private box = new PIXI.Graphics();
+  private box = new PIXI.Graphics();
 
-    public inputs = {
-        top: null,
-        left: null,
-        right: null,
-        bottom: null,
-    };
+  public inputs = {
+    top: null,
+    left: null,
+    right: null,
+    bottom: null,
+  };
 
-    public moves = [];
+public moves = [];
 
     constructor(container: PIXI.Container, inputManager: EventEmitter) {
         const hudRatio = (window.innerHeight / 400);
@@ -47,5 +47,5 @@ export default class UIWrapper {
 
         // Add wrapper
         container.addChild(this.box);
-    }
+  }
 }

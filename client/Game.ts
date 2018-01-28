@@ -5,9 +5,9 @@ import {each} from 'lodash';
 import UIWrapper from './components/UIWrapper';
 import NetworkClient from '../extras/system/Net';
 import {EventEmitter} from 'events';
-import Avatar, {Action} from "./components/Avatar";
-import {TweenLite} from 'gsap';
+import Avatar from "./components/Avatar";
 import InputAccumulator from './InputAccumulator';
+import {moveAvatar} from "./Step";
 
 const MUSHROOM = 'mushroom';
 const AVATAR = 'avatar';
@@ -64,7 +64,7 @@ export default class Game {
 
   startPlayback() {
     console.log('All moves done, starting playback', this.inputAccumulator.list)
-    this.avatar.move(this.inputAccumulator.list.map((move) => {
+    moveAvatar(this.avatar, this.inputAccumulator.list.map((move) => {
       return move.direction;
     }), rawMapData);
   }
