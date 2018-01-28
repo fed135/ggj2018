@@ -14,16 +14,21 @@ export default {
     8: './assets/sprites/bg.png',
     9: './assets/sprites/block.png',
   },
-
+  layers: [
+    './assets/sprites/mushroom.png',
+    './assets/sprites/block.png',
+    null,
+    './assets/sprites/bg.png',
+  ],
   map: [
     0, 2, 3, 4, 5, 6, 7, 8,
     1, 8, 9, 8, 8, 8, 9, 8,
     8, 8, 8, 8, 8, 8, 8, 8,
-	8, 8, 8, 8, 3, 9, 8, 6,
+    8, 8, 8, 8, 3, 9, 8, 6,
     8, 8, 8, 8, 8, 8, 8, 8,
-	8, 5, 9, 8, 8, 8, 8, 8,
+    8, 5, 9, 8, 8, 8, 8, 8,
     8, 8, 8, 8, 8, 8, 7, 8,
-	9, 8, 8, 4, 8, 8, 8, 8,
+    9, 8, 8, 4, 8, 8, 8, 8,
     8, 8, 8, 8, 9, 8, 8, 2,
   ],
 }

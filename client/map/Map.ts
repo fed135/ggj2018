@@ -6,6 +6,7 @@ export type MapData = {
   tileHeight: number,
   tiles: { [key: number]: string },
   map: number[],
+  layers: string[],
 };
 
 export interface Tile {

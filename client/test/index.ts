@@ -26,6 +26,7 @@ describe('map utils', () => {
       tiles: {
         0: 'default.png',
       },
+      layers: [],
       map: [
         0, 0,
         0, 0,
