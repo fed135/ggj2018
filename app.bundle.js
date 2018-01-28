@@ -179,34 +179,37 @@ var loadMap = function (container, map, resources) {
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony default export */ __webpack_exports__["default"] = ({
-  width: 8,
+  width: 16,
   tileWidth: 100,
   tileHeight: 100,
   tiles: {
     0: './assets/sprites/mushroom.png',
     1: './assets/sprites/start.png',
-    2: './assets/sprites/end.png',
-    3: './assets/sprites/trap1.png',
-    4: './assets/sprites/trap2.png',
-    5: './assets/sprites/trap3.png',
-    6: './assets/sprites/trap4.png',
-    7: './assets/sprites/trap5.png',
-    8: './assets/sprites/bg.png',
-    9: './assets/sprites/block.png',
+    2: './assets/sprites/trap1.png',
+    3: './assets/sprites/trap2.png',
+    4: './assets/sprites/trap3.png',
+    5: './assets/sprites/trap4.png',
+    6: './assets/sprites/block.png',
+    7: './assets/sprites/bg.png',
+    //: './assets/sprites/end.png',
   },
 
   map: [
-    0, 2, 3, 4, 5, 6, 7, 8,
-    1, 8, 9, 8, 8, 8, 9, 8,
-    8, 8, 8, 8, 8, 8, 8, 8,
-	8, 8, 8, 8, 3, 9, 8, 6,
-    8, 8, 8, 8, 8, 8, 8, 8,
-	8, 5, 9, 8, 8, 8, 8, 8,
-    8, 8, 8, 8, 8, 8, 7, 8,
-	9, 8, 8, 4, 8, 8, 8, 8,
-    8, 8, 8, 8, 9, 8, 8, 2,
+    3, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 4,
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+	7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7,
+	7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7,
+	6, 7, 7, 7, 7, 7, 7, 1, 1, 7, 7, 7, 7, 7, 7, 7, 6,
+	6, 7, 7, 7, 7, 7, 7, 1, 1, 7, 7, 7, 7, 7, 7, 7, 6,
+	7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7,
+	7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7,
+	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+	6, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 5,
   ],
 });
+
+1720
+
 
 /***/ }),
 
@@ -315,7 +318,7 @@ class NetworkClient extends __WEBPACK_IMPORTED_MODULE_1_events__["EventEmitter"]
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = function() {
-  return new Worker(__webpack_require__.p + "e3b66a15dc306a5ed154.worker.js");
+  return new Worker(__webpack_require__.p + "0796214ee128e64c437c.worker.js");
 };
 
 /***/ }),
