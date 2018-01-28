@@ -58,13 +58,15 @@ export default class Game {
     this.inputManager.on('moveAccepted', (action) => {
       Net.send('player.move', action);
     });
-    this.inputManager.on('movesAllAccepted', this.startPlayback);
+    this.inputManager.on('movesAllAccepted', this.startPlayback.bind(this));
     this.inputAccumulator = new InputAccumulator(match, this.inputManager);
   }
 
   startPlayback() {
     console.log('All moves done, starting playback', this.inputAccumulator.list)
-    this.avatar.move(this.inputAccumulator.list, rawMapData);
+    this.avatar.move(this.inputAccumulator.list.map((move) => {
+      return move.direction;
+    }), rawMapData);
   }
 
   load = (app) => (loader, resources) => {

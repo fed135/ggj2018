@@ -43,6 +43,7 @@ function handleJoin(param) {
     // Enter full screen
     if (tag.hasOwnProperty('requestFullscreen')) tag.requestFullscreen();
     else if (tag.hasOwnProperty('webkitRequestFullscreen')) tag.webkitRequestFullscreen();
+    else if (tag.hasOwnProperty('webkitRequestFullScreen')) tag.webkitRequestFullScreen();
 
     const matchName = '' + (document.getElementById('lobby_name') as HTMLInputElement).value.toLowerCase();
 

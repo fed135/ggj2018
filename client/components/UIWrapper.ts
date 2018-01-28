@@ -28,6 +28,7 @@ export default class UIWrapper {
         this.box.endFill();
 
         this.box.width = container.width * uiSize;
+        this.box.height = container.height;
 
         // Arrows
         this.inputs = {
