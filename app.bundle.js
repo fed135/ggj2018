@@ -49,7 +49,7 @@ function handleJoin(param) {
         // Enter full screen
         var fsEvent = (tag.requestFullScreen) ? "requestFullScreen" : (tag.mozRequestFullScreen) ? "mozRequestFullScreen" : (tag.webkitRequestFullScreenWithKeys) ? "webkitRequestFullScreenWithKeys" : (tag.webkitRequestFullScreen) ? "webkitRequestFullScreen" : "FullscreenError";
         // Enter full screen
-        tag[fsEvent]();
+        // tag[fsEvent]();
         var matchName = '' + document.getElementById('lobby_name').value.toLowerCase();
         if (matchName === '') {
             locked = false;
@@ -162,7 +162,7 @@ var Game = /** @class */ (function () {
         // The application will create a renderer using WebGL, if possible,
         // with a fallback to a canvas render. It will also setup the ticker
         // and the root stage PIXI.Container
-        var app = new PIXI.Application();
+        var app = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight });
         window.addEventListener("resize", function () {
             app.renderer.resize(window.innerWidth, window.innerHeight);
             var ratio = (Math.min(window.screen.height, TipicalDeviceHeight) /
