@@ -32,6 +32,8 @@ export default class Game {
     // and the root stage PIXI.Container
     const app = new PIXI.Application();
 
+    this.inputManager.setMaxListeners(100);
+
     // The application will create a canvas element for you that you
     // can then insert into the DOM
     container.appendChild(app.view);
