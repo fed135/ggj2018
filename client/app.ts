@@ -87,8 +87,7 @@ function handleReady() {
 function handleMatchUpdate(packet) {
   match = packet;
   if (match.state === 'game') {
-    new Game(document.getElementById('game') as HTMLDivElement);
-    document.getElementById('lobby').style.display = 'none';
+    transitionToGame();
   }
   else {
     for (let i = 0; i < 8; i++) {
@@ -104,4 +103,15 @@ function handleQuit() {
   window.location.href = '/';
 }
 
-init();
+const transitionToGame = (): any => {
+  new Game(document.getElementById('game') as HTMLDivElement);
+  document.getElementById('lobby').style.display = 'none';
+  document.getElementById('splash').style.display = 'none';
+};
+
+
+if (process.env.MODE === 'offline') {
+  transitionToGame();
+} else {
+  init();
+}

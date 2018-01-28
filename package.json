@@ -6,7 +6,8 @@
     "build": "webpack --config webpack.prod.config.js --progress",
     "serve": "http-server ./dist -p 80",
     "test": "mocha --require ts-node/register --watch --watch-extensions js,ts,tsx client/test/index.ts",
-    "start": "webpack-dev-server --config webpack.dev.config.js -d --inline --hot --progress --no-info --port 8000"
+    "start": "webpack-dev-server --config webpack.dev.config.js -d --inline --hot --progress --no-info --port 8000",
+    "start:offline": "MODE=offline webpack-dev-server --config webpack.dev.config.js -d --inline --hot --progress --no-info --port 8000"
   },
   "engines": {
     "node": ">= 7.0.0"

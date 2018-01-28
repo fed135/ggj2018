@@ -4,7 +4,7 @@ import ws from 'kalm-websocket';
 class NetworkWorker {
 	constructor(scope) {
 		this.socket = Kalm.connect({
-			hostname: '54.209.253.88',
+			hostname: '2watts.com',
 			port: 9000,
 			transport: ws,
 			profile: { tick: 0 }
