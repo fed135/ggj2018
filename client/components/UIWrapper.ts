@@ -18,7 +18,7 @@ export default class UIWrapper extends PIXI.Sprite {
 
   public moves = [];
 
-  constructor(maxHeight: number, inputManager: EventEmitter) {
+  constructor(ratio: number, inputManager: EventEmitter) {
     super();
 
     const uiSize = 210;
@@ -29,7 +29,7 @@ export default class UIWrapper extends PIXI.Sprite {
     this.box.drawRect(0, 0, uiSize, window.innerHeight);
     this.box.endFill();
 
-    this.box.width = uiSize;
+    this.box.width = uiSize*ratio;
     this.box.height = window.innerHeight;
 
     // Arrows
@@ -43,7 +43,7 @@ export default class UIWrapper extends PIXI.Sprite {
     // Move boxes
     this.moves.length = config.playsPerTurn;
     for (let i = 0; i < config.playsPerTurn; i++) {
-      const move = new MoveIndicator(maxHeight, i, inputManager);
+      const move = new MoveIndicator(ratio, i, inputManager);
       this.moves[i] = move;
       this.box.addChild(move);
     }

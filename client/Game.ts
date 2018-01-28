@@ -23,6 +23,7 @@ const TipicalDeviceHeight = 400;
 export default class Game {
 
   public inputManager = new EventEmitter();
+  private app = null;
   private avatar: Avatar = null;
   private inputAccumulator = null;
   private gameContainer: PIXI.Sprite = null;
@@ -31,25 +32,15 @@ export default class Game {
     // The application will create a renderer using WebGL, if possible,
     // with a fallback to a canvas render. It will also setup the ticker
     // and the root stage PIXI.Container
-    const app = new PIXI.Application({width: window.innerWidth, height: window.innerHeight});
-    window.addEventListener("resize", () => {
-      app.renderer.resize(window.innerWidth, window.innerHeight);
-
-      const ratio = (
-        Math.min(window.screen.height, TipicalDeviceHeight) /
-        Math.max(window.screen.height, TipicalDeviceHeight)
-      );
-      if (this.gameContainer) {
-        this.gameContainer.scale = new Point(ratio, ratio);
-      }
-    });
+    this.app = new PIXI.Application({width: window.innerWidth, height: window.innerHeight});
+    window.addEventListener("resize", this.resizeGameView.bind(this));
 
     this.inputManager.setMaxListeners(100);
     this.inputAccumulator = new InputAccumulator(match, this.inputManager);
 
     // The application will create a canvas element for you that you
     // can then insert into the DOM
-    container.appendChild(app.view);
+    container.appendChild(this.app.view);
 
     // load the texture we need
     PIXI.loader.add(AVATAR, './assets/sprites/mushroom.png');
@@ -61,7 +52,7 @@ export default class Game {
     each(rawMapData.tiles, (path, id) => {
       PIXI.loader.add(id, path);
     });
-    PIXI.loader.load(this.load(app));
+    PIXI.loader.load(this.load(this.app));
 
     this.inputManager.on('input', (action) => {
       navigator.vibrate([100, 10, 100])
@@ -77,6 +68,16 @@ export default class Game {
     this.inputManager.on('movesAllAccepted', this.startPlayback.bind(this));
   }
 
+  resizeGameView() {
+    this.app.renderer.resize(window.innerWidth, window.innerHeight);
+
+    const ratio = TipicalDeviceHeight/window.screen.height
+
+    if (this.gameContainer) {
+      this.gameContainer.scale = new Point(ratio, ratio);
+    }
+  }
+
   startPlayback() {
     moveAvatar(this.avatar, this.inputAccumulator.list.map((move) => {
       return move.direction;
@@ -88,8 +89,11 @@ export default class Game {
     const avatarLayer: PIXI.Sprite = new PIXI.Sprite();
 
     this.gameContainer.addChild(new MapView(resources, avatarLayer, rawMapData));
-    this.gameContainer.addChild(new UIWrapper(TipicalDeviceHeight, this.inputManager));
+
     app.stage.addChild(this.gameContainer);
+    app.stage.addChild(new UIWrapper(this.gameContainer.scale.x, this.inputManager));
+
+    this.resizeGameView();
 
     this.avatar = new Avatar();
     avatarLayer.x += 1200*0.380;
