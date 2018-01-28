@@ -87,8 +87,6 @@ export default class Game {
   load = (app) => (loader, resources) => {
     this.gameContainer = new PIXI.Sprite();
     const avatarLayer: PIXI.Sprite = new PIXI.Sprite();
-    this.avatar = new Avatar();
-    avatarLayer.addChild(this.avatar);
 
     this.gameContainer.addChild(new MapView(resources, avatarLayer, rawMapData));
 
@@ -96,6 +94,11 @@ export default class Game {
     app.stage.addChild(new UIWrapper(this.gameContainer.scale.x, this.inputManager));
 
     this.resizeGameView();
+
+    this.avatar = new Avatar();
+    avatarLayer.x += 1200*0.380;
+    avatarLayer.y += 120;
+    avatarLayer.addChild(this.avatar);
 
     // Listen for frame updates
     app.ticker.add(this.render);
