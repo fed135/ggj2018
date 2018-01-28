@@ -2,6 +2,9 @@ import * as PIXI from 'pixi.js';
 import rawMapData from './assets/map/map';
 import {Map, parseMap, Tile, MapData} from "./map/Map";
 import {each} from 'lodash';
+import UIWrapper from './components/UIWrapper';
+import NetworkClient from '../extras/system/Net';
+import {EventEmitter} from 'events';
 
 const MUSHROOM = 'mushroom';
 const AVATAR = 'avatar';
@@ -9,7 +12,9 @@ const AVATAR = 'avatar';
 
 export default class Game {
 
-  constructor(container: HTMLDivElement) {
+  public inputManager = new EventEmitter();
+
+  constructor(container: HTMLDivElement, Net: NetworkClient) {
     // The application will create a renderer using WebGL, if possible,
     // with a fallback to a canvas render. It will also setup the ticker
     // and the root stage PIXI.Container
@@ -31,10 +36,17 @@ export default class Game {
       PIXI.loader.add(id, path);
     });
     PIXI.loader.load(this.load(app));
+
+    this.inputManager.on('input', this.handlePlayerInput);
+  }
+
+  handlePlayerInput(action) {
+    console.log('input', action);
   }
 
   load = (app) => (loader, resources) => {
     loadStaticLayers(app.stage, rawMapData, resources);
+    const ui = new UIWrapper(app.stage, this.inputManager);
 
     // Listen for frame updates
     app.ticker.add(this.render);

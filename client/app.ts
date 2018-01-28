@@ -112,7 +112,7 @@ function handleQuit() {
 }
 
 const transitionToGame = (): any => {
-  new Game(document.getElementById('game') as HTMLDivElement);
+  new Game(document.getElementById('game') as HTMLDivElement, Net);
   document.getElementById('lobby').style.display = 'none';
   document.getElementById('splash').style.display = 'none';
 };
