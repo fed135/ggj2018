@@ -148,13 +148,16 @@ var Game = /** @class */ (function () {
         this.avatar = null;
         this.inputAccumulator = null;
         this.load = function (app) { return function (loader, resources) {
+            var TipicalDeviceHeight = 400;
+            var ratio = (Math.min(window.screen.height, TipicalDeviceHeight) /
+                Math.max(window.screen.height, TipicalDeviceHeight));
             var gameContainer = new PIXI.Sprite();
             var avatarLayer = new PIXI.Sprite();
             _this.avatar = new Avatar_1.default();
             avatarLayer.addChild(_this.avatar);
             gameContainer.addChild(new MapView_1.default(resources, avatarLayer, map_1.default));
-            gameContainer.addChild(new UIWrapper_1.default(40, 30, _this.inputManager));
-            gameContainer.scale = new Point(.3, .3);
+            gameContainer.addChild(new UIWrapper_1.default(TipicalDeviceHeight, _this.inputManager));
+            gameContainer.scale = new Point(ratio, ratio);
             app.stage.addChild(gameContainer);
             // Listen for frame updates
             app.ticker.add(_this.render);
@@ -271,10 +274,8 @@ var config_1 = __webpack_require__(37);
 var Step_1 = __webpack_require__(93);
 var UIWrapper = /** @class */ (function (_super) {
     __extends(UIWrapper, _super);
-    function UIWrapper(width, height, inputManager) {
+    function UIWrapper(maxHeight, inputManager) {
         var _this = _super.call(this) || this;
-        _this.width = width;
-        _this.height = height;
         _this.box = new PIXI.Graphics();
         _this.inputs = {
             top: null,
@@ -283,8 +284,7 @@ var UIWrapper = /** @class */ (function (_super) {
             bottom: null,
         };
         _this.moves = [];
-        var hudRatio = (window.innerHeight / 400);
-        var uiSize = 210 * hudRatio;
+        var uiSize = 210;
         // Color
         _this.box.beginFill(0xDDDDDD, 0.8);
         _this.box.drawRect(0, 0, uiSize, window.innerHeight);
@@ -293,15 +293,17 @@ var UIWrapper = /** @class */ (function (_super) {
         _this.box.height = window.innerHeight;
         // Arrows
         _this.inputs = {
-            top: new ArrowButton_1.default(_this.box, Step_1.Action.UP, hudRatio, inputManager),
-            left: new ArrowButton_1.default(_this.box, Step_1.Action.LEFT, hudRatio, inputManager),
-            right: new ArrowButton_1.default(_this.box, Step_1.Action.RIGHT, hudRatio, inputManager),
-            bottom: new ArrowButton_1.default(_this.box, Step_1.Action.DOWN, hudRatio, inputManager)
+            top: new ArrowButton_1.default(_this.box, Step_1.Action.UP, inputManager),
+            left: new ArrowButton_1.default(_this.box, Step_1.Action.LEFT, inputManager),
+            right: new ArrowButton_1.default(_this.box, Step_1.Action.RIGHT, inputManager),
+            bottom: new ArrowButton_1.default(_this.box, Step_1.Action.DOWN, inputManager)
         };
         // Move boxes
         _this.moves.length = config_1.default.playsPerTurn;
         for (var i = 0; i < config_1.default.playsPerTurn; i++) {
-            _this.moves[i] = new MoveIndicator_1.default(_this.box, i, hudRatio, inputManager);
+            var move = new MoveIndicator_1.default(maxHeight, i, inputManager);
+            _this.moves[i] = move;
+            _this.box.addChild(move);
         }
         // Add wrapper
         _this.addChild(_this.box);
@@ -322,7 +324,7 @@ exports.default = UIWrapper;
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(11);
 var ArrowButton = /** @class */ (function () {
-    function ArrowButton(container, direction, hudRatio, inputManager) {
+    function ArrowButton(container, direction, inputManager) {
         this.box = new PIXI.Graphics();
         var positions = {
             top: [80, 240, 0],
@@ -335,7 +337,7 @@ var ArrowButton = /** @class */ (function () {
         // Color
         this.box.lineStyle(2, 0x000000, 1);
         this.box.beginFill(0xFFFFFF, 1);
-        this.box.drawRect(positions[direction][0] * hudRatio, positions[direction][1] * hudRatio, buttonSize * hudRatio, buttonSize * hudRatio);
+        this.box.drawRect(positions[direction][0], positions[direction][1], buttonSize, buttonSize);
         this.box.endFill();
         // Interactivity
         this.box.interactive = true;
@@ -344,13 +346,13 @@ var ArrowButton = /** @class */ (function () {
         // Arrow graphics
         var arrowGraphics = new PIXI.Graphics();
         arrowGraphics.beginFill(0x333333, 0.8);
-        arrowGraphics.moveTo(0, -arrowSize * hudRatio);
-        arrowGraphics.lineTo(arrowSize * hudRatio, arrowSize * hudRatio);
-        arrowGraphics.lineTo(-arrowSize * hudRatio, arrowSize * hudRatio);
+        arrowGraphics.moveTo(0, -arrowSize);
+        arrowGraphics.lineTo(arrowSize, arrowSize);
+        arrowGraphics.lineTo(-arrowSize, arrowSize);
         arrowGraphics.endFill();
         arrowGraphics.rotation = positions[direction][2];
-        arrowGraphics.x = (positions[direction][0] * hudRatio) + ((buttonSize * hudRatio) * 0.5);
-        arrowGraphics.y = (positions[direction][1] * hudRatio) + ((buttonSize * hudRatio) * 0.5);
+        arrowGraphics.x = (positions[direction][0]) + ((buttonSize) * 0.5);
+        arrowGraphics.y = (positions[direction][1]) + ((buttonSize) * 0.5);
         this.box.addChild(arrowGraphics);
         // Add wrapper
         container.addChild(this.box);
@@ -367,13 +369,24 @@ exports.default = ArrowButton;
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(11);
 var config_1 = __webpack_require__(37);
-var MoveIndicator = /** @class */ (function () {
-    function MoveIndicator(container, index, hudRatio, inputManager) {
-        var _this = this;
-        this.box = new PIXI.Graphics();
+var MoveIndicator = /** @class */ (function (_super) {
+    __extends(MoveIndicator, _super);
+    function MoveIndicator(maxHeight, index, inputManager) {
+        var _this = _super.call(this) || this;
+        _this.box = new PIXI.Graphics();
         var moveBoxSize = 190;
         var movesPerRow = 4;
         var boxSize = (moveBoxSize / movesPerRow);
@@ -385,11 +398,11 @@ var MoveIndicator = /** @class */ (function () {
             bottom: Math.PI
         };
         // Color
-        this.box.lineStyle(2, 0x000000, 1);
-        this.box.beginFill(0xFFFFFF, 1);
-        this.box.alpha = 0.44;
-        this.box.drawRoundedRect((10 * hudRatio) + ((boxSize * hudRatio) * (index % movesPerRow)), (50 * hudRatio) + ((boxSize * hudRatio) * Math.floor(index / movesPerRow)), boxSize * hudRatio, boxSize * hudRatio, 8);
-        this.box.endFill();
+        _this.box.lineStyle(2, 0x000000, 1);
+        _this.box.beginFill(0xFFFFFF, 1);
+        _this.box.alpha = 0.44;
+        _this.box.drawRoundedRect((10) + ((boxSize) * (index % movesPerRow)), (50) + ((boxSize) * Math.floor(index / movesPerRow)), boxSize, boxSize, 8);
+        _this.box.endFill();
         // Lighting up
         inputManager.on('moveAccepted', function (action) {
             if (index === (config_1.default.playsPerTurn - action.numMovesLeft) - 1) {
@@ -397,21 +410,22 @@ var MoveIndicator = /** @class */ (function () {
                 // Arrow graphics
                 var arrowGraphics = new PIXI.Graphics();
                 arrowGraphics.beginFill(0x333333, 0.8);
-                arrowGraphics.moveTo(0, -arrowSize * hudRatio);
-                arrowGraphics.lineTo(arrowSize * hudRatio, arrowSize * hudRatio);
-                arrowGraphics.lineTo(-arrowSize * hudRatio, arrowSize * hudRatio);
+                arrowGraphics.moveTo(0, -arrowSize);
+                arrowGraphics.lineTo(arrowSize, arrowSize);
+                arrowGraphics.lineTo(-arrowSize, arrowSize);
                 arrowGraphics.endFill();
                 arrowGraphics.rotation = positions[action.move.direction];
-                arrowGraphics.x = (10 * hudRatio) + ((boxSize * hudRatio) * (index % movesPerRow)) + ((boxSize * hudRatio) * 0.5);
-                arrowGraphics.y = (50 * hudRatio) + ((boxSize * hudRatio) * Math.floor(index / movesPerRow)) + ((boxSize * hudRatio) * 0.5);
+                arrowGraphics.x = (10) + ((boxSize) * (index % movesPerRow)) + ((boxSize) * 0.5);
+                arrowGraphics.y = (50) + ((boxSize) * Math.floor(index / movesPerRow)) + ((boxSize) * 0.5);
                 _this.box.addChild(arrowGraphics);
             }
         });
         // Add wrapper
-        container.addChild(this.box);
+        _this.addChild(_this.box);
+        return _this;
     }
     return MoveIndicator;
-}());
+}(PIXI.Sprite));
 exports.default = MoveIndicator;
 
 
