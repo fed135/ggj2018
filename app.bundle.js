@@ -1,21 +1,21 @@
 webpackJsonp([0],{
 
-/***/ 345:
+/***/ 347:
 /***/ (function(module, exports, __webpack_require__) {
 
-module.exports = __webpack_require__(346);
+module.exports = __webpack_require__(348);
 
 
 /***/ }),
 
-/***/ 346:
+/***/ 348:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {
 Object.defineProperty(exports, "__esModule", { value: true });
-var Game_1 = __webpack_require__(347);
-var Net_1 = __webpack_require__(354);
+var Game_1 = __webpack_require__(349);
+var Net_1 = __webpack_require__(357);
 // Local vars
 var locked = false;
 var fullScreen = false;
@@ -109,7 +109,7 @@ function handleQuit() {
     window.location.href = '/';
 }
 var transitionToGame = function () {
-    new Game_1.default(document.getElementById('game'), Net);
+    new Game_1.default(document.getElementById('game'), Net, match);
     document.getElementById('lobby').style.display = 'none';
     document.getElementById('splash').style.display = 'none';
 };
@@ -120,34 +120,37 @@ else {
     init();
 }
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(62)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(63)))
 
 /***/ }),
 
-/***/ 347:
+/***/ 349:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var PIXI = __webpack_require__(17);
-var map_1 = __webpack_require__(348);
-var Map_1 = __webpack_require__(349);
-var lodash_1 = __webpack_require__(91);
-var UIWrapper_1 = __webpack_require__(350);
-var events_1 = __webpack_require__(92);
-var Avatar_1 = __webpack_require__(352);
+var PIXI = __webpack_require__(11);
+var map_1 = __webpack_require__(350);
+var Map_1 = __webpack_require__(351);
+var lodash_1 = __webpack_require__(92);
+var UIWrapper_1 = __webpack_require__(352);
+var events_1 = __webpack_require__(94);
+var Avatar_1 = __webpack_require__(93);
+var InputAccumulator_1 = __webpack_require__(356);
 var MUSHROOM = 'mushroom';
 var AVATAR = 'avatar';
 var Game = /** @class */ (function () {
-    function Game(container, Net) {
+    function Game(container, Net, match) {
         var _this = this;
         this.inputManager = new events_1.EventEmitter();
+        this.avatar = null;
+        this.inputAccumulator = null;
         this.load = function (app) { return function (loader, resources) {
             loadStaticLayers(app.stage, map_1.default, resources);
             var ui = new UIWrapper_1.default(app.stage, _this.inputManager);
-            var avatar = new Avatar_1.default();
-            app.stage.addChild(avatar);
+            _this.avatar = new Avatar_1.default();
+            app.stage.addChild(_this.avatar);
             // Listen for frame updates
             app.ticker.add(_this.render);
         }; };
@@ -170,10 +173,22 @@ var Game = /** @class */ (function () {
             PIXI.loader.add(id, path);
         });
         PIXI.loader.load(this.load(app));
-        this.inputManager.on('input', this.handlePlayerInput);
+        this.inputManager.on('input', function (action) {
+            console.log('input', action);
+            _this.inputAccumulator.push({
+                color: match.color,
+                direction: action.direction
+            });
+        });
+        this.inputManager.on('moveAccepted', function (action) {
+            Net.send('player.move', action);
+        });
+        this.inputManager.on('movesAllAccepted', this.startPlayback);
+        this.inputAccumulator = new InputAccumulator_1.default(match, this.inputManager);
     }
-    Game.prototype.handlePlayerInput = function (action) {
-        console.log('input', action);
+    Game.prototype.startPlayback = function () {
+        console.log('All moves done, starting playback', this.inputAccumulator.list);
+        this.avatar.move(this.inputAccumulator.list, map_1.default);
     };
     Game.prototype.render = function () {
     };
@@ -204,7 +219,7 @@ var loadInteractiveLayer = function (container, map, resources) {
 
 /***/ }),
 
-/***/ 348:
+/***/ 350:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -247,13 +262,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /***/ }),
 
-/***/ 349:
+/***/ 351:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var lodash_1 = __webpack_require__(91);
+var lodash_1 = __webpack_require__(92);
 var isIn = function (keys) { return function (key) {
     var isPresent = keys.includes(key);
     if (!isPresent) {
@@ -297,14 +312,17 @@ exports.parseMap = function (mapData) {
 
 /***/ }),
 
-/***/ 350:
+/***/ 352:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var PIXI = __webpack_require__(17);
-var ArrowButton_1 = __webpack_require__(351);
+var PIXI = __webpack_require__(11);
+var ArrowButton_1 = __webpack_require__(353);
+var MoveIndicator_1 = __webpack_require__(354);
+var Avatar_1 = __webpack_require__(93);
+var config_1 = __webpack_require__(37);
 var UIWrapper = /** @class */ (function () {
     function UIWrapper(container, inputManager) {
         this.box = new PIXI.Graphics();
@@ -314,6 +332,7 @@ var UIWrapper = /** @class */ (function () {
             right: null,
             bottom: null,
         };
+        this.moves = [];
         var uiSize = 0.16;
         // Color
         this.box.beginFill(0xDDDDDD, 0.8);
@@ -322,11 +341,16 @@ var UIWrapper = /** @class */ (function () {
         this.box.width = container.width * uiSize;
         // Arrows
         this.inputs = {
-            top: new ArrowButton_1.default(this.box, 'top', inputManager),
-            left: new ArrowButton_1.default(this.box, 'left', inputManager),
-            right: new ArrowButton_1.default(this.box, 'right', inputManager),
-            bottom: new ArrowButton_1.default(this.box, 'bottom', inputManager)
+            top: new ArrowButton_1.default(this.box, Avatar_1.Action.UP, inputManager),
+            left: new ArrowButton_1.default(this.box, Avatar_1.Action.LEFT, inputManager),
+            right: new ArrowButton_1.default(this.box, Avatar_1.Action.RIGHT, inputManager),
+            bottom: new ArrowButton_1.default(this.box, Avatar_1.Action.DOWN, inputManager)
         };
+        // Move boxes
+        this.moves.length = config_1.default.playsPerTurn;
+        for (var i = 0; i < config_1.default.playsPerTurn; i++) {
+            this.moves[i] = new MoveIndicator_1.default(this.box, i, inputManager);
+        }
         // Add wrapper
         container.addChild(this.box);
     }
@@ -337,13 +361,13 @@ exports.default = UIWrapper;
 
 /***/ }),
 
-/***/ 351:
+/***/ 353:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var PIXI = __webpack_require__(17);
+var PIXI = __webpack_require__(11);
 var ArrowButton = /** @class */ (function () {
     function ArrowButton(container, direction, inputManager) {
         this.box = new PIXI.Graphics();
@@ -384,91 +408,59 @@ exports.default = ArrowButton;
 
 /***/ }),
 
-/***/ 352:
+/***/ 354:
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var gsap_1 = __webpack_require__(353);
-var Action;
-(function (Action) {
-    Action[Action["UP"] = 0] = "UP";
-    Action[Action["DOWN"] = 1] = "DOWN";
-    Action[Action["LEFT"] = 2] = "LEFT";
-    Action[Action["RIGHT"] = 3] = "RIGHT";
-})(Action = exports.Action || (exports.Action = {}));
-var baseMovement = {
-    ease: gsap_1.Power0.easeNone
-};
-var SPEED = .62;
-var MOVES = (_a = {},
-    _a[Action.UP] = function (timeLine, target, map, lastPosition) {
-        var newPosition = __assign({}, baseMovement, lastPosition, { y: lastPosition.y -= map.tileHeight });
-        timeLine.to(target, SPEED, newPosition);
-        return newPosition;
-    },
-    _a[Action.DOWN] = function (timeLine, target, map, lastPosition) {
-        var newPosition = __assign({}, baseMovement, lastPosition, { y: lastPosition.y += map.tileHeight });
-        timeLine.to(target, SPEED, newPosition);
-        return newPosition;
-    },
-    _a[Action.LEFT] = function (timeLine, target, map, lastPosition) {
-        var newPosition = __assign({}, baseMovement, lastPosition, { x: lastPosition.x -= map.tileWidth });
-        timeLine.to(target, SPEED, newPosition);
-        return newPosition;
-    },
-    _a[Action.RIGHT] = function (timeLine, target, map, lastPosition) {
-        var newPosition = __assign({}, baseMovement, lastPosition, { x: lastPosition.x += map.tileWidth });
-        timeLine.to(target, SPEED, newPosition);
-        return newPosition;
-    },
-    _a);
-var Avatar = /** @class */ (function (_super) {
-    __extends(Avatar, _super);
-    function Avatar() {
-        var _this = _super.call(this) || this;
-        _this.graphic = new PIXI.Graphics();
-        _this.graphic.beginFill(0xFF0000, 0.8);
-        _this.graphic.drawRect(10, -20, 80, 120);
-        _this.addChild(_this.graphic);
-        return _this;
-    }
-    Avatar.prototype.move = function (moves, rawMapData) {
+var PIXI = __webpack_require__(11);
+var config_1 = __webpack_require__(37);
+var MoveIndicator = /** @class */ (function () {
+    function MoveIndicator(container, index, inputManager) {
         var _this = this;
-        var timeLine = new gsap_1.TimelineLite();
-        var positionAccumulator = { x: this.x, y: this.y };
-        moves.forEach(function (move) {
-            positionAccumulator = MOVES[move](timeLine, _this, rawMapData, positionAccumulator);
+        this.box = new PIXI.Graphics();
+        var boxSize = (0.85 / config_1.default.playsPerTurn);
+        var positions = {
+            top: 0,
+            left: Math.PI * 1.5,
+            right: Math.PI * 0.5,
+            bottom: Math.PI
+        };
+        // Color
+        this.box.lineStyle(2, 0x000000, 1);
+        this.box.beginFill(0xFFFFFF, 1);
+        this.box.alpha = 0.44;
+        this.box.drawRoundedRect(container.width * 0.075 + ((container.width * boxSize) * index), container.width * 1.125, container.width * boxSize, container.width * boxSize, 8);
+        this.box.endFill();
+        // Lighting up
+        inputManager.on('moveAccepted', function (action) {
+            if (index === (config_1.default.playsPerTurn - action.numMovesLeft) - 1) {
+                _this.box.alpha = 1;
+                // Arrow graphics
+                var arrowGraphics = new PIXI.Graphics();
+                arrowGraphics.beginFill(0x333333, 0.8);
+                arrowGraphics.moveTo(0, -container.width * 0.05);
+                arrowGraphics.lineTo(container.width * 0.05, container.width * 0.05);
+                arrowGraphics.lineTo(-container.width * 0.05, container.width * 0.05);
+                arrowGraphics.endFill();
+                arrowGraphics.rotation = positions[action.move.direction];
+                arrowGraphics.x = container.width * 0.075 + ((container.width * boxSize) * index) + container.width * (boxSize * 0.5);
+                arrowGraphics.y = container.width * 1.125 + container.width * (boxSize * 0.5);
+                _this.box.addChild(arrowGraphics);
+            }
         });
-    };
-    return Avatar;
-}(PIXI.Sprite));
-exports.default = Avatar;
-var _a;
+        // Add wrapper
+        container.addChild(this.box);
+    }
+    return MoveIndicator;
+}());
+exports.default = MoveIndicator;
 
 
 /***/ }),
 
-/***/ 353:
+/***/ 355:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global) {var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -8438,14 +8430,68 @@ if (_gsScope._gsDefine) { _gsScope._gsQueue.pop()(); } //necessary in case Tween
 
 /***/ }),
 
-/***/ 354:
+/***/ 356:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var config_1 = __webpack_require__(37);
+var InputAccumulator = /** @class */ (function () {
+    function InputAccumulator(match, inputManager) {
+        this.list = [];
+        this.numMovesLeft = config_1.default.playsPerTurn;
+        this.numPlayers = 0;
+        this.color = 0;
+        this.inputManager = null;
+        this.numPlayers = match.players;
+        this.color = match.color;
+        this.inputManager = inputManager;
+    }
+    InputAccumulator.prototype.push = function (action) {
+        if (this.color === action.color) {
+            // Local
+            if (this.numMovesLeft > 0) {
+                this.numMovesLeft--;
+                var move = {
+                    direction: action.direction,
+                    color: this.color,
+                    time: Date.now()
+                };
+                this.list.push(move);
+                this.inputManager.emit('moveAccepted', {
+                    numMovesLeft: this.numMovesLeft,
+                    move: move
+                });
+            }
+        }
+        else {
+            // Remote
+            this.list.push(action);
+            this.list.sort(function (a, b) {
+                return Number(a.time) - Number(b.time);
+            });
+        }
+        // Check game completed
+        if (this.list.length === config_1.default.playsPerTurn * this.numPlayers) {
+            this.inputManager.emit('movesAllAccepted', { list: this.list });
+        }
+    };
+    return InputAccumulator;
+}());
+exports.default = InputAccumulator;
+
+
+/***/ }),
+
+/***/ 357:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__ = __webpack_require__(355);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__ = __webpack_require__(358);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events__ = __webpack_require__(92);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_events__);
 
 
@@ -8489,7 +8535,7 @@ class NetworkClient extends __WEBPACK_IMPORTED_MODULE_1_events__["EventEmitter"]
 
 /***/ }),
 
-/***/ 355:
+/***/ 358:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = function() {
@@ -8498,7 +8544,26 @@ module.exports = function() {
 
 /***/ }),
 
-/***/ 91:
+/***/ 37:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Config = /** @class */ (function () {
+    function Config() {
+    }
+    Config.gameWidth = 800;
+    Config.gameHeight = 480;
+    Config.playsPerTurn = 4;
+    return Config;
+}());
+exports.default = Config;
+
+
+/***/ }),
+
+/***/ 92:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -25587,11 +25652,95 @@ module.exports = function() {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(53)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(0), __webpack_require__(54)(module)))
 
 /***/ }),
 
-/***/ 92:
+/***/ 93:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+var gsap_1 = __webpack_require__(355);
+var Action;
+(function (Action) {
+    Action["UP"] = "top";
+    Action["DOWN"] = "bottom";
+    Action["LEFT"] = "left";
+    Action["RIGHT"] = "right";
+})(Action = exports.Action || (exports.Action = {}));
+var baseMovement = {
+    ease: gsap_1.Power0.easeNone
+};
+var SPEED = .62;
+var MOVES = (_a = {},
+    _a[Action.UP] = function (timeLine, target, map, lastPosition) {
+        var newPosition = __assign({}, baseMovement, lastPosition, { y: lastPosition.y -= map.tileHeight });
+        timeLine.to(target, SPEED, newPosition);
+        return newPosition;
+    },
+    _a[Action.DOWN] = function (timeLine, target, map, lastPosition) {
+        var newPosition = __assign({}, baseMovement, lastPosition, { y: lastPosition.y += map.tileHeight });
+        timeLine.to(target, SPEED, newPosition);
+        return newPosition;
+    },
+    _a[Action.LEFT] = function (timeLine, target, map, lastPosition) {
+        var newPosition = __assign({}, baseMovement, lastPosition, { x: lastPosition.x -= map.tileWidth });
+        timeLine.to(target, SPEED, newPosition);
+        return newPosition;
+    },
+    _a[Action.RIGHT] = function (timeLine, target, map, lastPosition) {
+        var newPosition = __assign({}, baseMovement, lastPosition, { x: lastPosition.x += map.tileWidth });
+        timeLine.to(target, SPEED, newPosition);
+        return newPosition;
+    },
+    _a);
+var Avatar = /** @class */ (function (_super) {
+    __extends(Avatar, _super);
+    function Avatar() {
+        var _this = _super.call(this) || this;
+        _this.graphic = new PIXI.Graphics();
+        _this.graphic.beginFill(0xFF0000, 0.8);
+        _this.graphic.drawRect(10, -20, 80, 120);
+        _this.addChild(_this.graphic);
+        return _this;
+    }
+    Avatar.prototype.move = function (moves, rawMapData) {
+        var _this = this;
+        var timeLine = new gsap_1.TimelineLite();
+        var positionAccumulator = { x: this.x, y: this.y };
+        moves.forEach(function (move) {
+            positionAccumulator = MOVES[move](timeLine, _this, rawMapData, positionAccumulator);
+        });
+    };
+    return Avatar;
+}(PIXI.Sprite));
+exports.default = Avatar;
+var _a;
+
+
+/***/ }),
+
+/***/ 94:
 /***/ (function(module, exports) {
 
 // Copyright Joyent, Inc. and other Node contributors.
@@ -25900,4 +26049,4 @@ function isUndefined(arg) {
 
 /***/ })
 
-},[345]);
+},[347]);
