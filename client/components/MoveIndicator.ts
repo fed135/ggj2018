@@ -6,7 +6,7 @@ export default class MoveIndicator extends PIXI.Sprite {
 
   private box = new PIXI.Graphics();
 
-  constructor(maxHeight: number, index: number, inputManager: EventEmitter) {
+  constructor(ratio: number, index: number, inputManager: EventEmitter) {
     super();
 
     const moveBoxSize = 190;
