@@ -106,6 +106,7 @@ function handleQuit() {
 var transitionToGame = function () {
     new Game_1.default(document.getElementById('game'));
     document.getElementById('lobby').style.display = 'none';
+    document.getElementById('splash').style.display = 'none';
 };
 if (process.env.MODE === 'offline') {
     transitionToGame();
