@@ -18,14 +18,22 @@ let Net: NetworkClient;
 function init() {
   Net = new NetworkClient();
   const urlMatch = window.location.href.split('#');
-  if (urlMatch[1]) {
-    setTimeout(() => {
-      (document.getElementById('lobby_name') as HTMLInputElement).value = urlMatch[1];
-    }, 10);
-  }
+  setTimeout(() => {
+    (document.getElementById('lobby_name') as HTMLInputElement).value = urlMatch[1] || makeid();
+  }, 10);
 
   // Bind UI controls
   document.getElementById('lobby_btn').onclick = handleJoin;
+}
+
+function makeid() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 5; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
 }
 
 function handleJoin(param) {
