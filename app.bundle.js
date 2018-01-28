@@ -152,12 +152,14 @@ var Game = /** @class */ (function () {
         this.load = function (app) { return function (loader, resources) {
             _this.gameContainer = new PIXI.Sprite();
             var avatarLayer = new PIXI.Sprite();
-            _this.avatar = new Avatar_1.default();
-            avatarLayer.addChild(_this.avatar);
             _this.gameContainer.addChild(new MapView_1.default(resources, avatarLayer, map_1.default));
             app.stage.addChild(_this.gameContainer);
             app.stage.addChild(new UIWrapper_1.default(_this.gameContainer.scale.x, _this.inputManager));
             _this.resizeGameView();
+            _this.avatar = new Avatar_1.default();
+            avatarLayer.x += 1200 * 0.380;
+            avatarLayer.y += 120;
+            avatarLayer.addChild(_this.avatar);
             // Listen for frame updates
             app.ticker.add(_this.render);
         }; };
@@ -8513,8 +8515,9 @@ var __extends = (this && this.__extends) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 var MapParser_1 = __webpack_require__(358);
 var loadStaticLayers = function (container, specialLayer, rawMapData, resources) {
-    rawMapData.layers.forEach(function (layer) {
+    rawMapData.layers.reverse().forEach(function (layer) {
         if (layer === null) {
+            console.log('LAYER');
             // Fill and add the special layer
             loadInteractiveLayer(specialLayer, MapParser_1.parseMap(rawMapData), resources);
             container.addChild(specialLayer);
@@ -8531,7 +8534,7 @@ var loadInteractiveLayer = function (container, tiles, resources) {
         // Setup the position of the bunny
         graphic.x = tile.x;
         graphic.y = tile.y;
-        container.addChild(graphic);
+        container.addChildAt(graphic, 0);
     });
 };
 var MapView = /** @class */ (function (_super) {
