@@ -8672,7 +8672,7 @@ var Config = /** @class */ (function () {
     }
     Config.gameWidth = 800;
     Config.gameHeight = 480;
-    Config.playsPerTurn = 12;
+    Config.playsPerTurn = 4;
     return Config;
 }());
 exports.default = Config;
