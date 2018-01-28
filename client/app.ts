@@ -12,6 +12,13 @@ let match: match = {
   color: null
 };
 
+type FullScreenDOM = HTMLElement & {
+  requestFullScreen: 'string',
+  mozRequestFullScreen: 'string',
+  webkitRequestFullScreenWithKeys: 'string',
+  webkitRequestFullScreen: 'string'
+}
+
 let Net: NetworkClient;
 
 function init() {
@@ -38,12 +45,13 @@ function makeid() {
 function handleJoin(param) {
   if (!locked) {
     locked = true;
-    const tag = document.getElementById('game');
+    const tag = document.getElementById('game') as FullScreenDOM;
 
     // Enter full screen
-    if (tag.hasOwnProperty('requestFullscreen')) tag.requestFullscreen();
-    else if (tag.hasOwnProperty('webkitRequestFullscreen')) tag.webkitRequestFullscreen();
-    else if (tag.hasOwnProperty('webkitRequestFullScreen')) tag.webkitRequestFullScreen();
+		const fsEvent = (tag.requestFullScreen)?"requestFullScreen":(tag.mozRequestFullScreen)?"mozRequestFullScreen":(tag.webkitRequestFullScreenWithKeys)?"webkitRequestFullScreenWithKeys":(tag.webkitRequestFullScreen)?"webkitRequestFullScreen":"FullscreenError";
+
+		// Enter full screen
+		tag[fsEvent]();	
 
     const matchName = '' + (document.getElementById('lobby_name') as HTMLInputElement).value.toLowerCase();
 
