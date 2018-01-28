@@ -51,7 +51,7 @@ function handleJoin(param) {
 		const fsEvent = (tag.requestFullScreen)?"requestFullScreen":(tag.mozRequestFullScreen)?"mozRequestFullScreen":(tag.webkitRequestFullScreenWithKeys)?"webkitRequestFullScreenWithKeys":(tag.webkitRequestFullScreen)?"webkitRequestFullScreen":"FullscreenError";
 
 		// Enter full screen
-		tag[fsEvent]();	
+		// tag[fsEvent]();
 
     const matchName = '' + (document.getElementById('lobby_name') as HTMLInputElement).value.toLowerCase();
 

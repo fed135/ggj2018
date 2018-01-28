@@ -31,7 +31,7 @@ export default class Game {
     // The application will create a renderer using WebGL, if possible,
     // with a fallback to a canvas render. It will also setup the ticker
     // and the root stage PIXI.Container
-    const app = new PIXI.Application();
+    const app = new PIXI.Application({width: window.innerWidth, height: window.innerHeight});
     window.addEventListener("resize", () => {
       app.renderer.resize(window.innerWidth, window.innerHeight);
 
@@ -84,7 +84,6 @@ export default class Game {
   }
 
   load = (app) => (loader, resources) => {
-
     this.gameContainer = new PIXI.Sprite();
     const avatarLayer: PIXI.Sprite = new PIXI.Sprite();
     this.avatar = new Avatar();
