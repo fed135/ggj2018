@@ -6,9 +6,12 @@ export default class MoveIndicator {
 
     private box = new PIXI.Graphics(); 
 
-    constructor(container: PIXI.Container, index: number, inputManager: EventEmitter) {
+    constructor(container: PIXI.Container, index: number, hudRatio: number, inputManager: EventEmitter) {
 
-        const boxSize = (0.85 / config.playsPerTurn);
+        const moveBoxSize = 190;
+        const movesPerRow = 4;
+        const boxSize = (moveBoxSize / movesPerRow);
+        const arrowSize = boxSize * 0.25;
 
         const positions = {
             top: 0,
@@ -23,10 +26,10 @@ export default class MoveIndicator {
         this.box.alpha = 0.44;
         
         this.box.drawRoundedRect(
-            container.width * 0.075 + ((container.width * boxSize) * index),
-            container.width * 1.125,
-            container.width * boxSize,
-            container.width * boxSize,
+            (10 * hudRatio) + ((boxSize * hudRatio) * (index % movesPerRow)),
+            (50 * hudRatio) + ((boxSize * hudRatio) * Math.floor(index / movesPerRow)),
+            boxSize * hudRatio,
+            boxSize * hudRatio,
             8
         );
         this.box.endFill();
@@ -39,13 +42,13 @@ export default class MoveIndicator {
                 // Arrow graphics
                 const arrowGraphics = new PIXI.Graphics();
                 arrowGraphics.beginFill(0x333333, 0.8);
-                arrowGraphics.moveTo(0, -container.width * 0.05);
-                arrowGraphics.lineTo(container.width * 0.05, container.width * 0.05);
-                arrowGraphics.lineTo(-container.width * 0.05, container.width * 0.05);
+                arrowGraphics.moveTo(0, -arrowSize * hudRatio);
+                arrowGraphics.lineTo(arrowSize * hudRatio, arrowSize * hudRatio);
+                arrowGraphics.lineTo(-arrowSize * hudRatio, arrowSize * hudRatio);
                 arrowGraphics.endFill();
                 arrowGraphics.rotation = positions[action.move.direction];
-                arrowGraphics.x = container.width * 0.075 + ((container.width * boxSize) * index) + container.width * (boxSize * 0.5);
-                arrowGraphics.y = container.width * 1.125 + container.width * (boxSize * 0.5);
+                arrowGraphics.x = (10 * hudRatio) + ((boxSize * hudRatio) * (index % movesPerRow)) + ((boxSize * hudRatio) * 0.5);
+                arrowGraphics.y = (50 * hudRatio) + ((boxSize * hudRatio) * Math.floor(index / movesPerRow)) + ((boxSize * hudRatio) * 0.5);
                 this.box.addChild(arrowGraphics);
             }
         });
