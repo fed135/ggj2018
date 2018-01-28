@@ -145,6 +145,7 @@ var Game = /** @class */ (function () {
     function Game(container, Net, match) {
         var _this = this;
         this.inputManager = new events_1.EventEmitter();
+        this.app = null;
         this.avatar = null;
         this.inputAccumulator = null;
         this.gameContainer = null;
@@ -154,28 +155,22 @@ var Game = /** @class */ (function () {
             _this.avatar = new Avatar_1.default();
             avatarLayer.addChild(_this.avatar);
             _this.gameContainer.addChild(new MapView_1.default(resources, avatarLayer, map_1.default));
-            _this.gameContainer.addChild(new UIWrapper_1.default(TipicalDeviceHeight, _this.inputManager));
             app.stage.addChild(_this.gameContainer);
+            app.stage.addChild(new UIWrapper_1.default(_this.gameContainer.scale.x, _this.inputManager));
+            _this.resizeGameView();
             // Listen for frame updates
             app.ticker.add(_this.render);
         }; };
         // The application will create a renderer using WebGL, if possible,
         // with a fallback to a canvas render. It will also setup the ticker
         // and the root stage PIXI.Container
-        var app = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight });
-        window.addEventListener("resize", function () {
-            app.renderer.resize(window.innerWidth, window.innerHeight);
-            var ratio = (Math.min(window.screen.height, TipicalDeviceHeight) /
-                Math.max(window.screen.height, TipicalDeviceHeight));
-            if (_this.gameContainer) {
-                _this.gameContainer.scale = new Point(ratio, ratio);
-            }
-        });
+        this.app = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight });
+        window.addEventListener("resize", this.resizeGameView.bind(this));
         this.inputManager.setMaxListeners(100);
         this.inputAccumulator = new InputAccumulator_1.default(match, this.inputManager);
         // The application will create a canvas element for you that you
         // can then insert into the DOM
-        container.appendChild(app.view);
+        container.appendChild(this.app.view);
         // load the texture we need
         PIXI.loader.add(AVATAR, './assets/sprites/mushroom.png');
         lodash_1.each(map_1.default.layers, function (path) {
@@ -186,7 +181,7 @@ var Game = /** @class */ (function () {
         lodash_1.each(map_1.default.tiles, function (path, id) {
             PIXI.loader.add(id, path);
         });
-        PIXI.loader.load(this.load(app));
+        PIXI.loader.load(this.load(this.app));
         this.inputManager.on('input', function (action) {
             navigator.vibrate([100, 10, 100]);
             _this.inputAccumulator.push({
@@ -200,6 +195,13 @@ var Game = /** @class */ (function () {
         });
         this.inputManager.on('movesAllAccepted', this.startPlayback.bind(this));
     }
+    Game.prototype.resizeGameView = function () {
+        this.app.renderer.resize(window.innerWidth, window.innerHeight);
+        var ratio = TipicalDeviceHeight / window.screen.height;
+        if (this.gameContainer) {
+            this.gameContainer.scale = new Point(ratio, ratio);
+        }
+    };
     Game.prototype.startPlayback = function () {
         Step_1.moveAvatar(this.avatar, this.inputAccumulator.list.map(function (move) {
             return move.direction;
@@ -279,7 +281,7 @@ var config_1 = __webpack_require__(37);
 var Step_1 = __webpack_require__(93);
 var UIWrapper = /** @class */ (function (_super) {
     __extends(UIWrapper, _super);
-    function UIWrapper(maxHeight, inputManager) {
+    function UIWrapper(ratio, inputManager) {
         var _this = _super.call(this) || this;
         _this.box = new PIXI.Graphics();
         _this.inputs = {
@@ -294,7 +296,7 @@ var UIWrapper = /** @class */ (function (_super) {
         _this.box.beginFill(0xDDDDDD, 0.8);
         _this.box.drawRect(0, 0, uiSize, window.innerHeight);
         _this.box.endFill();
-        _this.box.width = uiSize;
+        _this.box.width = uiSize * ratio;
         _this.box.height = window.innerHeight;
         // Arrows
         _this.inputs = {
@@ -306,7 +308,7 @@ var UIWrapper = /** @class */ (function (_super) {
         // Move boxes
         _this.moves.length = config_1.default.playsPerTurn;
         for (var i = 0; i < config_1.default.playsPerTurn; i++) {
-            var move = new MoveIndicator_1.default(maxHeight, i, inputManager);
+            var move = new MoveIndicator_1.default(ratio, i, inputManager);
             _this.moves[i] = move;
             _this.box.addChild(move);
         }
@@ -389,7 +391,7 @@ var PIXI = __webpack_require__(11);
 var config_1 = __webpack_require__(37);
 var MoveIndicator = /** @class */ (function (_super) {
     __extends(MoveIndicator, _super);
-    function MoveIndicator(maxHeight, index, inputManager) {
+    function MoveIndicator(ratio, index, inputManager) {
         var _this = _super.call(this) || this;
         _this.box = new PIXI.Graphics();
         var moveBoxSize = 190;
