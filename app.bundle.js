@@ -78,7 +78,7 @@ function handleReply(packet) {
 function enterLobby() {
     document.getElementById('lobby').style.display = 'block';
     document.getElementById('splash').style.display = 'none';
-    document.getElementById('lobby_name_label').innerHTML = match.name;
+    document.getElementById('lobby_name_label').innerHTML = 'lobby: ' + match.name;
     document.getElementById('ready_btn').onclick = handleReady;
     document.getElementById('quit_btn').onclick = handleQuit;
 }
@@ -341,7 +341,7 @@ class NetworkClient extends __WEBPACK_IMPORTED_MODULE_1_events__["EventEmitter"]
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = function() {
-  return new Worker(__webpack_require__.p + "0796214ee128e64c437c.worker.js");
+  return new Worker(__webpack_require__.p + "e3b66a15dc306a5ed154.worker.js");
 };
 
 /***/ }),
