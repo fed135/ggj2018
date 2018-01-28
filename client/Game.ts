@@ -2,14 +2,30 @@ import * as PIXI from 'pixi.js';
 import rawMapData from './assets/map/map';
 import {Map, parseMap, Tile, MapData} from "./map/Map";
 import {each} from 'lodash';
+import UIWrapper from './components/UIWrapper';
+import NetworkClient from '../extras/system/Net';
+import {EventEmitter} from 'events';
+import Avatar, {Action} from "./components/Avatar";
+import {TweenLite} from 'gsap';
+import InputAccumulator from './InputAccumulator';
 
 const MUSHROOM = 'mushroom';
 const AVATAR = 'avatar';
 
+export type match = {
+  name: string,
+  state: string,
+  players: number,
+  color: number
+};
 
 export default class Game {
 
-  constructor(container: HTMLDivElement) {
+  public inputManager = new EventEmitter();
+  private avatar: Avatar = null;
+  private inputAccumulator = null;
+
+  constructor(container: HTMLDivElement, Net: NetworkClient, match: match) {
     // The application will create a renderer using WebGL, if possible,
     // with a fallback to a canvas render. It will also setup the ticker
     // and the root stage PIXI.Container
@@ -23,7 +39,7 @@ export default class Game {
     PIXI.loader.add(MUSHROOM, './assets/sprites/mushroom.png');
     PIXI.loader.add(AVATAR, './assets/sprites/mushroom.png');
     each(rawMapData.layers, (path) => {
-      if(path){
+      if (path) {
         PIXI.loader.add(path, path);
       }
     });
@@ -31,10 +47,32 @@ export default class Game {
       PIXI.loader.add(id, path);
     });
     PIXI.loader.load(this.load(app));
+
+    this.inputManager.on('input', (action) => {
+      console.log('input', action);
+      this.inputAccumulator.push({
+        color: match.color,
+        direction: action.direction
+      });
+    });
+    this.inputManager.on('moveAccepted', (action) => {
+      Net.send('player.move', action);
+    });
+    this.inputManager.on('movesAllAccepted', this.startPlayback);
+    this.inputAccumulator = new InputAccumulator(match, this.inputManager);
+  }
+
+  startPlayback() {
+    console.log('All moves done, starting playback', this.inputAccumulator.list)
+    this.avatar.move(this.inputAccumulator.list, rawMapData);
   }
 
   load = (app) => (loader, resources) => {
     loadStaticLayers(app.stage, rawMapData, resources);
+    const ui = new UIWrapper(app.stage, this.inputManager);
+
+    this.avatar = new Avatar();
+    app.stage.addChild(this.avatar);
 
     // Listen for frame updates
     app.ticker.add(this.render);

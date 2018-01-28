@@ -1,12 +1,11 @@
-import Game from './Game';
-
+import Game, {match} from './Game';
 import NetworkClient from '../extras/system/Net';
 
 // Local vars
 
 let locked = false;
 let fullScreen = false;
-let match = {
+let match: match = {
   name: null,
   state: 'splash',
   players: 0,
@@ -18,14 +17,22 @@ let Net: NetworkClient;
 function init() {
   Net = new NetworkClient();
   const urlMatch = window.location.href.split('#');
-  if (urlMatch[1]) {
-    setTimeout(() => {
-      (document.getElementById('lobby_name') as HTMLInputElement).value = urlMatch[1];
-    }, 10);
-  }
+  setTimeout(() => {
+    (document.getElementById('lobby_name') as HTMLInputElement).value = urlMatch[1] || makeid();
+  }, 10);
 
   // Bind UI controls
   document.getElementById('lobby_btn').onclick = handleJoin;
+}
+
+function makeid() {
+  var text = "";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (var i = 0; i < 5; i++)
+    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+  return text;
 }
 
 function handleJoin(param) {
@@ -69,7 +76,7 @@ function handleReply(packet) {
 function enterLobby() {
   document.getElementById('lobby').style.display = 'block';
   document.getElementById('splash').style.display = 'none';
-  document.getElementById('lobby_name_label').innerHTML = match.name;
+  document.getElementById('lobby_name_label').innerHTML = 'lobby: ' + match.name;
   document.getElementById('ready_btn').onclick = handleReady;
   document.getElementById('quit_btn').onclick = handleQuit;
 }
@@ -104,7 +111,7 @@ function handleQuit() {
 }
 
 const transitionToGame = (): any => {
-  new Game(document.getElementById('game') as HTMLDivElement);
+  new Game(document.getElementById('game') as HTMLDivElement, Net, match);
   document.getElementById('lobby').style.display = 'none';
   document.getElementById('splash').style.display = 'none';
 };
