@@ -45,7 +45,7 @@ function makeid() {
 function handleJoin(param) {
     if (!locked) {
         locked = true;
-        var tag = document.getElementById('game');
+        var tag = document.body;
         // Enter full screen
         var fsEvent = (tag.requestFullScreen) ? "requestFullScreen" : (tag.mozRequestFullScreen) ? "mozRequestFullScreen" : (tag.webkitRequestFullScreenWithKeys) ? "webkitRequestFullScreenWithKeys" : (tag.webkitRequestFullScreen) ? "webkitRequestFullScreen" : "FullscreenError";
         // Enter full screen
@@ -105,7 +105,7 @@ function handleMatchUpdate(packet) {
     }
 }
 function handleQuit() {
-    window.location.href = '/';
+    window.location.href = '/ggj2018';
 }
 var transitionToGame = function () {
     new Game_1.default(document.getElementById('game'), Net, match);
