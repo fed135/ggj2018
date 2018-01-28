@@ -45,7 +45,7 @@ function makeid() {
 function handleJoin(param) {
   if (!locked) {
     locked = true;
-    const tag = document.getElementById('game') as FullScreenDOM;
+    const tag = document.body as FullScreenDOM;
 
     // Enter full screen
 		const fsEvent = (tag.requestFullScreen)?"requestFullScreen":(tag.mozRequestFullScreen)?"mozRequestFullScreen":(tag.webkitRequestFullScreenWithKeys)?"webkitRequestFullScreenWithKeys":(tag.webkitRequestFullScreen)?"webkitRequestFullScreen":"FullscreenError";
@@ -116,7 +116,7 @@ function handleMatchUpdate(packet) {
 }
 
 function handleQuit() {
-  window.location.href = '/';
+  window.location.href = '/ggj2018';
 }
 
 const transitionToGame = (): any => {
