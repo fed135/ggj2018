@@ -139,26 +139,23 @@ var InputAccumulator_1 = __webpack_require__(356);
 var Step_1 = __webpack_require__(93);
 var MapView_1 = __webpack_require__(357);
 var Point = PIXI.Point;
-var MUSHROOM = 'mushroom';
 var AVATAR = 'avatar';
+var TipicalDeviceHeight = 400;
 var Game = /** @class */ (function () {
     function Game(container, Net, match) {
         var _this = this;
         this.inputManager = new events_1.EventEmitter();
         this.avatar = null;
         this.inputAccumulator = null;
+        this.gameContainer = null;
         this.load = function (app) { return function (loader, resources) {
-            var TipicalDeviceHeight = 400;
-            var ratio = (Math.min(window.screen.height, TipicalDeviceHeight) /
-                Math.max(window.screen.height, TipicalDeviceHeight));
-            var gameContainer = new PIXI.Sprite();
+            _this.gameContainer = new PIXI.Sprite();
             var avatarLayer = new PIXI.Sprite();
             _this.avatar = new Avatar_1.default();
             avatarLayer.addChild(_this.avatar);
-            gameContainer.addChild(new MapView_1.default(resources, avatarLayer, map_1.default));
-            gameContainer.addChild(new UIWrapper_1.default(TipicalDeviceHeight, _this.inputManager));
-            gameContainer.scale = new Point(ratio, ratio);
-            app.stage.addChild(gameContainer);
+            _this.gameContainer.addChild(new MapView_1.default(resources, avatarLayer, map_1.default));
+            _this.gameContainer.addChild(new UIWrapper_1.default(TipicalDeviceHeight, _this.inputManager));
+            app.stage.addChild(_this.gameContainer);
             // Listen for frame updates
             app.ticker.add(_this.render);
         }; };
@@ -166,12 +163,20 @@ var Game = /** @class */ (function () {
         // with a fallback to a canvas render. It will also setup the ticker
         // and the root stage PIXI.Container
         var app = new PIXI.Application();
+        window.addEventListener("resize", function () {
+            app.renderer.resize(window.innerWidth, window.innerHeight);
+            var ratio = (Math.min(window.screen.height, TipicalDeviceHeight) /
+                Math.max(window.screen.height, TipicalDeviceHeight));
+            if (_this.gameContainer) {
+                _this.gameContainer.scale = new Point(ratio, ratio);
+            }
+        });
         this.inputManager.setMaxListeners(100);
+        this.inputAccumulator = new InputAccumulator_1.default(match, this.inputManager);
         // The application will create a canvas element for you that you
         // can then insert into the DOM
         container.appendChild(app.view);
         // load the texture we need
-        PIXI.loader.add(MUSHROOM, './assets/sprites/mushroom.png');
         PIXI.loader.add(AVATAR, './assets/sprites/mushroom.png');
         lodash_1.each(map_1.default.layers, function (path) {
             if (path) {
@@ -194,7 +199,6 @@ var Game = /** @class */ (function () {
             Net.send('player.move', action);
         });
         this.inputManager.on('movesAllAccepted', this.startPlayback.bind(this));
-        this.inputAccumulator = new InputAccumulator_1.default(match, this.inputManager);
     }
     Game.prototype.startPlayback = function () {
         Step_1.moveAvatar(this.avatar, this.inputAccumulator.list.map(function (move) {
