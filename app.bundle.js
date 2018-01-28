@@ -12,7 +12,7 @@ module.exports = __webpack_require__(345);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-
+/* WEBPACK VAR INJECTION */(function(process) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Game_1 = __webpack_require__(346);
 var Net_1 = __webpack_require__(349);
@@ -89,8 +89,7 @@ function handleReady() {
 function handleMatchUpdate(packet) {
     match = packet;
     if (match.state === 'game') {
-        new Game_1.default(document.getElementById('game'));
-        document.getElementById('lobby').style.display = 'none';
+        transitionToGame();
     }
     else {
         for (var i = 0; i < 8; i++) {
@@ -104,8 +103,18 @@ function handleMatchUpdate(packet) {
 function handleQuit() {
     window.location.href = '/';
 }
-init();
+var transitionToGame = function () {
+    new Game_1.default(document.getElementById('game'));
+    document.getElementById('lobby').style.display = 'none';
+};
+if (process.env.MODE === 'offline') {
+    transitionToGame();
+}
+else {
+    init();
+}
 
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(62)))
 
 /***/ }),
 
@@ -118,7 +127,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(36);
 var map_1 = __webpack_require__(347);
 var Map_1 = __webpack_require__(348);
-var lodash_1 = __webpack_require__(90);
+var lodash_1 = __webpack_require__(91);
 var MUSHROOM = 'mushroom';
 var AVATAR = 'avatar';
 var Game = /** @class */ (function () {
@@ -206,7 +215,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
-var lodash_1 = __webpack_require__(90);
+var lodash_1 = __webpack_require__(91);
 var isIn = function (keys) { return function (key) {
     var isPresent = keys.includes(key);
     if (!isPresent) {
@@ -263,38 +272,38 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 class NetworkClient extends __WEBPACK_IMPORTED_MODULE_1_events__["EventEmitter"] {
-	constructor() {
-		super();
+  constructor() {
+    super();
 
-		this.clockSync = 0;
+    this.clockSync = 0;
 
-		this.worker = new __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js___default.a();
-		this.worker.addEventListener('message', this.handleMessage.bind(this));
-	}
+    this.worker = new __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js___default.a();
+    this.worker.addEventListener('message', this.handleMessage.bind(this));
+  }
 
-	handleMessage(evt) {
-		this.emit(evt.data.target, evt.data.body);	
-	}
+  handleMessage(evt) {
+    this.emit(evt.data.target, evt.data.body);
+  }
 
-	subscribe(model, handler, single) {
-		if (this.listenerCount(model) === 0) {
-			this.worker.postMessage({ action: 'subscribe', target: model });
-		}
+  subscribe(model, handler, single) {
+    if (this.listenerCount(model) === 0) {
+      this.worker.postMessage({ action: 'subscribe', target: model });
+    }
 
-		if (single) this.once(model, handler);
-		else this.on(model, handler);
-	}
+    if (single) this.once(model, handler);
+    else this.on(model, handler);
+  }
 
-	unsubscribe(model, handler) {
-		this.removeListener(model, handler);
-		if (this.listenerCount(model) === 0) {
-			this.worker.postMessage({ action: 'unsubscribe', target: model });
-		}
-	}
+  unsubscribe(model, handler) {
+    this.removeListener(model, handler);
+    if (this.listenerCount(model) === 0) {
+      this.worker.postMessage({ action: 'unsubscribe', target: model });
+    }
+  }
 
-	send(model, payload) {
-		this.worker.postMessage({ action: 'write', target: model, body: payload });
-	}
+  send(model, payload) {
+    this.worker.postMessage({ action: 'write', target: model, body: payload });
+  }
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (NetworkClient);
@@ -619,7 +628,7 @@ function isUndefined(arg) {
 
 /***/ }),
 
-/***/ 90:
+/***/ 91:
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
