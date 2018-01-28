@@ -15,7 +15,7 @@ module.exports = __webpack_require__(348);
 /* WEBPACK VAR INJECTION */(function(process) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var Game_1 = __webpack_require__(349);
-var Net_1 = __webpack_require__(357);
+var Net_1 = __webpack_require__(358);
 // Local vars
 var locked = false;
 var fullScreen = false;
@@ -138,8 +138,9 @@ var Map_1 = __webpack_require__(351);
 var lodash_1 = __webpack_require__(92);
 var UIWrapper_1 = __webpack_require__(352);
 var events_1 = __webpack_require__(94);
-var Avatar_1 = __webpack_require__(93);
-var InputAccumulator_1 = __webpack_require__(356);
+var Avatar_1 = __webpack_require__(356);
+var InputAccumulator_1 = __webpack_require__(357);
+var Step_1 = __webpack_require__(93);
 var MUSHROOM = 'mushroom';
 var AVATAR = 'avatar';
 var Game = /** @class */ (function () {
@@ -190,7 +191,7 @@ var Game = /** @class */ (function () {
     }
     Game.prototype.startPlayback = function () {
         console.log('All moves done, starting playback', this.inputAccumulator.list);
-        this.avatar.move(this.inputAccumulator.list.map(function (move) {
+        Step_1.moveAvatar(this.avatar, this.inputAccumulator.list.map(function (move) {
             return move.direction;
         }), map_1.default);
     };
@@ -246,7 +247,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     './assets/map/map_layer_03.png',
     './assets/map/map_layer_02.png',
     null,
-    './assets/map/map_layer_00.png',
+    './assets/map/map_layer_00.jpg',
   ],
   map: [
     1, 0, 0, 0, 0, 0, 0, 5, 5, 0, 0, 0, 0, 0, 0, 0, 2,
@@ -324,8 +325,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var PIXI = __webpack_require__(11);
 var ArrowButton_1 = __webpack_require__(353);
 var MoveIndicator_1 = __webpack_require__(354);
-var Avatar_1 = __webpack_require__(93);
 var config_1 = __webpack_require__(37);
+var Step_1 = __webpack_require__(93);
 var UIWrapper = /** @class */ (function () {
     function UIWrapper(container, inputManager) {
         this.box = new PIXI.Graphics();
@@ -345,10 +346,10 @@ var UIWrapper = /** @class */ (function () {
         this.box.height = container.height;
         // Arrows
         this.inputs = {
-            top: new ArrowButton_1.default(this.box, Avatar_1.Action.UP, inputManager),
-            left: new ArrowButton_1.default(this.box, Avatar_1.Action.LEFT, inputManager),
-            right: new ArrowButton_1.default(this.box, Avatar_1.Action.RIGHT, inputManager),
-            bottom: new ArrowButton_1.default(this.box, Avatar_1.Action.DOWN, inputManager)
+            top: new ArrowButton_1.default(this.box, Step_1.Action.UP, inputManager),
+            left: new ArrowButton_1.default(this.box, Step_1.Action.LEFT, inputManager),
+            right: new ArrowButton_1.default(this.box, Step_1.Action.RIGHT, inputManager),
+            bottom: new ArrowButton_1.default(this.box, Step_1.Action.DOWN, inputManager)
         };
         // Move boxes
         this.moves.length = config_1.default.playsPerTurn;
@@ -8439,6 +8440,39 @@ if (_gsScope._gsDefine) { _gsScope._gsQueue.pop()(); } //necessary in case Tween
 
 "use strict";
 
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
+Object.defineProperty(exports, "__esModule", { value: true });
+var Avatar = /** @class */ (function (_super) {
+    __extends(Avatar, _super);
+    function Avatar() {
+        var _this = _super.call(this) || this;
+        _this.graphic = new PIXI.Graphics();
+        _this.graphic.beginFill(0xFF0000, 0.8);
+        _this.graphic.drawRect(10, -20, 80, 120);
+        _this.addChild(_this.graphic);
+        return _this;
+    }
+    return Avatar;
+}(PIXI.Sprite));
+exports.default = Avatar;
+
+
+/***/ }),
+
+/***/ 357:
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
 Object.defineProperty(exports, "__esModule", { value: true });
 var config_1 = __webpack_require__(37);
 var InputAccumulator = /** @class */ (function () {
@@ -8488,12 +8522,12 @@ exports.default = InputAccumulator;
 
 /***/ }),
 
-/***/ 357:
+/***/ 358:
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__ = __webpack_require__(358);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__ = __webpack_require__(359);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_worker_loader_workers_NetworkWorker_js__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events__ = __webpack_require__(94);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_events___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_events__);
@@ -8539,7 +8573,7 @@ class NetworkClient extends __WEBPACK_IMPORTED_MODULE_1_events__["EventEmitter"]
 
 /***/ }),
 
-/***/ 358:
+/***/ 359:
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports = function() {
@@ -25665,16 +25699,6 @@ exports.default = Config;
 
 "use strict";
 
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
 var __assign = (this && this.__assign) || Object.assign || function(t) {
     for (var s, i = 1, n = arguments.length; i < n; i++) {
         s = arguments[i];
@@ -25718,27 +25742,13 @@ var MOVES = (_a = {},
         return newPosition;
     },
     _a);
-var Avatar = /** @class */ (function (_super) {
-    __extends(Avatar, _super);
-    function Avatar() {
-        var _this = _super.call(this) || this;
-        _this.graphic = new PIXI.Graphics();
-        _this.graphic.beginFill(0xFF0000, 0.8);
-        _this.graphic.drawRect(10, -20, 80, 120);
-        _this.addChild(_this.graphic);
-        return _this;
-    }
-    Avatar.prototype.move = function (moves, rawMapData) {
-        var _this = this;
-        var timeLine = new gsap_1.TimelineLite();
-        var positionAccumulator = { x: this.x, y: this.y };
-        moves.forEach(function (move) {
-            positionAccumulator = MOVES[move](timeLine, _this, rawMapData, positionAccumulator);
-        });
-    };
-    return Avatar;
-}(PIXI.Sprite));
-exports.default = Avatar;
+exports.moveAvatar = function (target, moves, rawMapData) {
+    var timeLine = new gsap_1.TimelineLite();
+    var positionAccumulator = { x: target.x, y: target.y };
+    moves.forEach(function (move) {
+        positionAccumulator = MOVES[move](timeLine, target, rawMapData, positionAccumulator);
+    });
+};
 var _a;
 
 
