@@ -1,4 +1,4 @@
-import {TimelineLite, Power0} from 'gsap';
+import {Power0, TimelineLite} from 'gsap';
 import {MapData} from "./map/Map";
 
 export enum Action {
@@ -38,7 +38,6 @@ type StepValidator = (
   lastPosition: Point,
   step: Step,
 ) => void;
-
 
 
 const MOVES: MoveCommands = {

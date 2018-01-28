@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import rawMapData from './assets/map/map';
-import {Map, parseMap, Tile, MapData} from "./map/Map";
+import {Map, MapData, parseMap, Tile} from "./map/Map";
 import {each} from 'lodash';
 import UIWrapper from './components/UIWrapper';
 import NetworkClient from '../extras/system/Net';

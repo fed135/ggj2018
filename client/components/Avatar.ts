@@ -1,6 +1,3 @@
-import {TimelineLite} from 'gsap';
-import {MapData} from "../map/Map";
-import Point = PIXI.Point;
 
 
 

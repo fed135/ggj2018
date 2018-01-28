@@ -1,4 +1,4 @@
-import {uniq, keys, isEmpty} from 'lodash';
+import {isEmpty, keys, uniq} from 'lodash';
 
 export type MapData = {
   width: number,
