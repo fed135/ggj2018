@@ -51,6 +51,8 @@ function handleJoin(param) {
             tag.requestFullscreen();
         else if (tag.hasOwnProperty('webkitRequestFullscreen'))
             tag.webkitRequestFullscreen();
+        else if (tag.hasOwnProperty('webkitRequestFullScreen'))
+            tag.webkitRequestFullScreen();
         var matchName = '' + document.getElementById('lobby_name').value.toLowerCase();
         if (matchName === '') {
             locked = false;
@@ -183,12 +185,14 @@ var Game = /** @class */ (function () {
         this.inputManager.on('moveAccepted', function (action) {
             Net.send('player.move', action);
         });
-        this.inputManager.on('movesAllAccepted', this.startPlayback);
+        this.inputManager.on('movesAllAccepted', this.startPlayback.bind(this));
         this.inputAccumulator = new InputAccumulator_1.default(match, this.inputManager);
     }
     Game.prototype.startPlayback = function () {
         console.log('All moves done, starting playback', this.inputAccumulator.list);
-        this.avatar.move(this.inputAccumulator.list, map_1.default);
+        this.avatar.move(this.inputAccumulator.list.map(function (move) {
+            return move.direction;
+        }), map_1.default);
     };
     Game.prototype.render = function () {
     };
@@ -338,6 +342,7 @@ var UIWrapper = /** @class */ (function () {
         this.box.drawRect(0, 0, container.width * uiSize, container.height);
         this.box.endFill();
         this.box.width = container.width * uiSize;
+        this.box.height = container.height;
         // Arrows
         this.inputs = {
             top: new ArrowButton_1.default(this.box, Avatar_1.Action.UP, inputManager),
