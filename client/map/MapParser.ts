@@ -1,4 +1,4 @@
-import {uniq, keys, isEmpty} from 'lodash';
+import {isEmpty, keys, uniq} from 'lodash';
 
 export type MapData = {
   width: number,
@@ -17,9 +17,6 @@ export interface Tile {
   resourceUrl: string,
   tileId: number,
 }
-
-export type Map = Tile[];
-
 
 const isIn = (keys) => (key) => {
   const isPresent = keys.includes(key);
@@ -51,7 +48,7 @@ export const mapValidation = (mapData: MapData): boolean => {
   return true;
 };
 
-export const parseMap = (mapData: MapData): Map => {
+export const parseMap = (mapData: MapData): Tile[] => {
   mapValidation(mapData);
 
   return mapData.map.map((tileId, index) => {
