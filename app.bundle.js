@@ -135,8 +135,7 @@ var Game = /** @class */ (function () {
     function Game(container) {
         var _this = this;
         this.load = function (app) { return function (loader, resources) {
-            var map = Map_1.parseMap(map_1.default);
-            loadMap(app.stage, map, resources);
+            loadStaticLayers(app.stage, map_1.default, resources);
             // Listen for frame updates
             app.ticker.add(_this.render);
         }; };
@@ -150,6 +149,11 @@ var Game = /** @class */ (function () {
         // load the texture we need
         PIXI.loader.add(MUSHROOM, './assets/sprites/mushroom.png');
         PIXI.loader.add(AVATAR, './assets/sprites/mushroom.png');
+        lodash_1.each(map_1.default.layers, function (path) {
+            if (path) {
+                PIXI.loader.add(path, path);
+            }
+        });
         lodash_1.each(map_1.default.tiles, function (path, id) {
             PIXI.loader.add(id, path);
         });
@@ -160,7 +164,18 @@ var Game = /** @class */ (function () {
     return Game;
 }());
 exports.default = Game;
-var loadMap = function (container, map, resources) {
+var loadStaticLayers = function (container, map, resources) {
+    map.layers.forEach(function (layer) {
+        if (layer === null) {
+            loadInteractiveLayer(container, Map_1.parseMap(map_1.default), resources);
+        }
+        else {
+            var graphic = new PIXI.Sprite(resources[layer].texture);
+            container.addChild(graphic);
+        }
+    });
+};
+var loadInteractiveLayer = function (container, map, resources) {
     map.map(function (tile) {
         var graphic = new PIXI.Sprite(resources[tile.tileId].texture);
         // Setup the position of the bunny
@@ -193,22 +208,25 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
     7: './assets/sprites/bg.png',
     //: './assets/sprites/end.png',
   },
-
+  layers: [
+    './assets/sprites/mushroom.png',
+    './assets/sprites/block.png',
+    null,
+    './assets/sprites/bg.png',
+  ],
   map: [
     3, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 4,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7,
-	7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7,
-	6, 7, 7, 7, 7, 7, 7, 1, 1, 7, 7, 7, 7, 7, 7, 7, 6,
-	6, 7, 7, 7, 7, 7, 7, 1, 1, 7, 7, 7, 7, 7, 7, 7, 6,
-	7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7,
-	7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7,
-	7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
-	6, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 5,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7,
+    7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7,
+    6, 7, 7, 7, 7, 7, 7, 1, 1, 7, 7, 7, 7, 7, 7, 7, 6,
+    6, 7, 7, 7, 7, 7, 7, 1, 1, 7, 7, 7, 7, 7, 7, 7, 6,
+    7, 7, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6, 7, 7, 7,
+    7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7,
+    6, 7, 7, 7, 7, 7, 7, 6, 6, 7, 7, 7, 7, 7, 7, 7, 5,
   ],
 });
-
-1720
 
 
 /***/ }),
