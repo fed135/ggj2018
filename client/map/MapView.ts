@@ -1,4 +1,5 @@
 import {MapData, parseMap, Tile} from "./MapParser";
+import Point = PIXI.Point;
 
 const loadStaticLayers = (container: PIXI.Container, specialLayer: PIXI.Sprite, rawMapData: MapData, resources) => {
   rawMapData.layers.forEach((layer: string) => {

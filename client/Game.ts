@@ -72,6 +72,12 @@ export default class Game {
   }
 
   load = (app) => (loader, resources) => {
+    const TipicalDeviceHeight = 400;
+    const ratio = (
+      Math.min(window.screen.height, TipicalDeviceHeight) /
+      Math.max(window.screen.height, TipicalDeviceHeight)
+    );
+
     const gameContainer: PIXI.Sprite = new PIXI.Sprite();
 
     const avatarLayer: PIXI.Sprite = new PIXI.Sprite();
@@ -79,8 +85,8 @@ export default class Game {
     avatarLayer.addChild(this.avatar);
 
     gameContainer.addChild(new MapView(resources, avatarLayer, rawMapData));
-    gameContainer.addChild(new UIWrapper(40, 30, this.inputManager));
-    gameContainer.scale = new Point(.3, .3);
+    gameContainer.addChild(new UIWrapper(TipicalDeviceHeight, this.inputManager));
+    gameContainer.scale = new Point(ratio, ratio);
 
     app.stage.addChild(gameContainer);
 

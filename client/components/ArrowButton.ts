@@ -6,7 +6,7 @@ export default class ArrowButton {
 
   private box = new PIXI.Graphics();
 
-  constructor(container: PIXI.Container, direction: string, hudRatio: number, inputManager: EventEmitter) {
+  constructor(container: PIXI.Container, direction: string, inputManager: EventEmitter) {
 
     const positions = {
       top: [80, 240, 0],
@@ -23,10 +23,10 @@ export default class ArrowButton {
     this.box.beginFill(0xFFFFFF, 1);
 
     this.box.drawRect(
-      positions[direction][0] * hudRatio,
-      positions[direction][1] * hudRatio,
-      buttonSize * hudRatio,
-      buttonSize * hudRatio
+      positions[direction][0],
+      positions[direction][1],
+      buttonSize,
+      buttonSize,
     );
     this.box.endFill();
 
@@ -38,13 +38,13 @@ export default class ArrowButton {
     // Arrow graphics
     const arrowGraphics = new PIXI.Graphics();
     arrowGraphics.beginFill(0x333333, 0.8);
-    arrowGraphics.moveTo(0, -arrowSize * hudRatio);
-    arrowGraphics.lineTo(arrowSize * hudRatio, arrowSize * hudRatio);
-    arrowGraphics.lineTo(-arrowSize * hudRatio, arrowSize * hudRatio);
+    arrowGraphics.moveTo(0, -arrowSize);
+    arrowGraphics.lineTo(arrowSize, arrowSize);
+    arrowGraphics.lineTo(-arrowSize, arrowSize);
     arrowGraphics.endFill();
     arrowGraphics.rotation = positions[direction][2];
-    arrowGraphics.x = (positions[direction][0] * hudRatio) + ((buttonSize * hudRatio) * 0.5);
-    arrowGraphics.y = (positions[direction][1] * hudRatio) + ((buttonSize * hudRatio) * 0.5);
+    arrowGraphics.x = (positions[direction][0]) + ((buttonSize) * 0.5);
+    arrowGraphics.y = (positions[direction][1]) + ((buttonSize) * 0.5);
     this.box.addChild(arrowGraphics);
 
     // Add wrapper
