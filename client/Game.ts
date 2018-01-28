@@ -5,6 +5,8 @@ import {each} from 'lodash';
 import UIWrapper from './components/UIWrapper';
 import NetworkClient from '../extras/system/Net';
 import {EventEmitter} from 'events';
+import Avatar, {Action} from "./components/Avatar";
+import {TweenLite} from 'gsap';
 
 const MUSHROOM = 'mushroom';
 const AVATAR = 'avatar';
@@ -28,7 +30,7 @@ export default class Game {
     PIXI.loader.add(MUSHROOM, './assets/sprites/mushroom.png');
     PIXI.loader.add(AVATAR, './assets/sprites/mushroom.png');
     each(rawMapData.layers, (path) => {
-      if(path){
+      if (path) {
         PIXI.loader.add(path, path);
       }
     });
@@ -47,6 +49,28 @@ export default class Game {
   load = (app) => (loader, resources) => {
     loadStaticLayers(app.stage, rawMapData, resources);
     const ui = new UIWrapper(app.stage, this.inputManager);
+
+    const avatar = new Avatar();
+    app.stage.addChild(avatar);
+    // TweenLite.to(avatar, 2, {x: 300});
+    // DPL DEBUG REMOVE PLZ
+    avatar.move([
+      Action.DOWN,
+      Action.RIGHT,
+      Action.DOWN,
+      Action.RIGHT,
+      Action.DOWN,
+      Action.RIGHT,
+      Action.RIGHT,
+      Action.RIGHT,
+      Action.DOWN,
+      Action.DOWN,
+      Action.DOWN,
+      Action.LEFT,
+      Action.UP,
+      Action.UP,
+    ], rawMapData);
+    // DPL DEBUG END
 
     // Listen for frame updates
     app.ticker.add(this.render);
