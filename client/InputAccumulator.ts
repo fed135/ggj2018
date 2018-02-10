@@ -1,5 +1,6 @@
 import config from './config';
 import {EventEmitter} from 'events';
+import MatchStore from "./match/Store";
 
 export default class InputAccumulator {
 
@@ -7,12 +8,10 @@ export default class InputAccumulator {
   public numMovesLeft = config.playsPerTurn;
   private numPlayers = 0;
   private color = 0;
-  private inputManager = null;
 
-  constructor(match, inputManager: EventEmitter) {
-    this.numPlayers = match.players;
-    this.color = match.color;
-    this.inputManager = inputManager;
+  constructor(matchStore: MatchStore, private inputManager: EventEmitter) {
+    this.numPlayers = matchStore.getPlayers().length;
+    this.color = matchStore.getSelf().color;
   }
 
   push(action) {
@@ -31,8 +30,7 @@ export default class InputAccumulator {
           move
         });
       }
-    }
-    else {
+    } else {
       // Remote
       this.list.push(action);
       this.list.sort((a, b) => {

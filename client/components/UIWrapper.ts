@@ -3,7 +3,7 @@ import ArrowButton from './ArrowButton';
 import MoveIndicator from './MoveIndicator';
 import {EventEmitter} from 'events';
 import config from '../config';
-import {Action} from "../Step";
+import {Input} from "../../server/player/types";
 
 export default class UIWrapper extends PIXI.Sprite {
 
@@ -34,10 +34,10 @@ export default class UIWrapper extends PIXI.Sprite {
 
     // Arrows
     this.inputs = {
-      top: new ArrowButton(this.box, Action.UP, inputManager),
-      left: new ArrowButton(this.box, Action.LEFT, inputManager),
-      right: new ArrowButton(this.box, Action.RIGHT, inputManager),
-      bottom: new ArrowButton(this.box, Action.DOWN, inputManager)
+      top: new ArrowButton(this.box, Input.UP, inputManager),
+      left: new ArrowButton(this.box, Input.LEFT, inputManager),
+      right: new ArrowButton(this.box, Input.RIGHT, inputManager),
+      bottom: new ArrowButton(this.box, Input.DOWN, inputManager)
     };
 
     // Move boxes

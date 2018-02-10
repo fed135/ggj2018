@@ -1,11 +1,9 @@
 import NetworkWorker from 'worker-loader!../workers/NetworkWorker.js';
 import { EventEmitter } from 'events';
 
-class NetworkClient extends EventEmitter {
+export default class NetworkClient extends EventEmitter {
   constructor() {
     super();
-
-    this.clockSync = 0;
 
     this.worker = new NetworkWorker();
     this.worker.addEventListener('message', this.handleMessage.bind(this));
@@ -36,4 +34,3 @@ class NetworkClient extends EventEmitter {
   }
 }
 
-export default NetworkClient;

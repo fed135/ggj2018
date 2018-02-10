@@ -13,7 +13,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "sourceMap": false,
-    "target": "es5",
+    "target": "esnext",
     "typeRoots": [
       "node_modules/@types",
       "node_modules/phaser-ce/typescript/pixi.d.ts"

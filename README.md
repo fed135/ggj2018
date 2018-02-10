@@ -41,7 +41,7 @@ Run:
 
 This will run a server so you can run the game in a browser.
 
-Open your browser and enter localhost:8000 into the address bar.
+Open your browser and enter 0.0.0.0:8000 into the address bar.
 
 As you change your code, Webpack will watch for changes and the browser will refresh.
 

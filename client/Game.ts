@@ -8,17 +8,36 @@ import Avatar from "./components/Avatar";
 import InputAccumulator from './InputAccumulator';
 import {moveAvatar} from "./Step";
 import MapView from "./map/MapView";
+import {MatchState} from "../server/match/types";
+import MatchStore from "./match/Store";
+import {PlayerAction, PlayerState} from "../server/player/types";
 import Point = PIXI.Point;
 
 const AVATAR = 'avatar';
 
-export type match = {
+export type ClientMatch = {
   name: string,
-  state: string,
-  players: number,
-  color: number
-};
-const TipicalDeviceHeight = 400;
+  state: MatchState,
+  players: PlayerState[],
+  self: string,
+}
+// export type ClientMatch = {
+//   name: string,
+//   state: string,
+//   playerCount: number,
+//   color: number
+// };
+const TypicalDeviceHeight = 400;
+
+class GameNetwork {
+  constructor(private network: NetworkClient) {
+
+  }
+
+  sendInput(action: { direction: PlayerAction }) {
+    this.network.send(PlayerAction.INPUT, action);
+  }
+}
 
 export default class Game {
 
@@ -27,8 +46,11 @@ export default class Game {
   private avatar: Avatar = null;
   private inputAccumulator = null;
   private gameContainer: PIXI.Sprite = null;
+  private gameNetwork: GameNetwork;
 
-  constructor(container: HTMLDivElement, Net: NetworkClient, match: match) {
+  constructor(container: HTMLDivElement, networkClient: NetworkClient, matchStore: MatchStore) {
+    this.gameNetwork = new GameNetwork(networkClient);
+
     // The application will create a renderer using WebGL, if possible,
     // with a fallback to a canvas render. It will also setup the ticker
     // and the root stage PIXI.Container
@@ -36,7 +58,7 @@ export default class Game {
     window.addEventListener("resize", this.resizeGameView.bind(this));
 
     this.inputManager.setMaxListeners(100);
-    this.inputAccumulator = new InputAccumulator(match, this.inputManager);
+    this.inputAccumulator = new InputAccumulator(matchStore, this.inputManager);
 
     // The application will create a canvas element for you that you
     // can then insert into the DOM
@@ -55,15 +77,16 @@ export default class Game {
     PIXI.loader.load(this.load(this.app));
 
     this.inputManager.on('input', (action) => {
-      navigator.vibrate([100, 10, 100])
-      this.inputAccumulator.push({
-        color: match.color,
-        direction: action.direction
+      navigator.vibrate([100, 10, 100]);
+      this.gameNetwork.sendInput({
+        direction: action.direction,
       });
     });
-    Net.subscribe('player.move', this.inputAccumulator.push.bind(this.inputAccumulator));
+
+    networkClient.subscribe('player.move', this.inputAccumulator.push.bind(this.inputAccumulator));
+
     this.inputManager.on('moveAccepted', (action) => {
-      Net.send('player.move', action);
+      networkClient.send('player.move', action);
     });
     this.inputManager.on('movesAllAccepted', this.startPlayback.bind(this));
   }
@@ -71,7 +94,7 @@ export default class Game {
   resizeGameView() {
     this.app.renderer.resize(window.innerWidth, window.innerHeight);
 
-    const ratio = TipicalDeviceHeight/window.screen.height
+    const ratio = TypicalDeviceHeight / window.screen.height
 
     if (this.gameContainer) {
       this.gameContainer.scale = new Point(ratio, ratio);
@@ -96,7 +119,7 @@ export default class Game {
     this.resizeGameView();
 
     this.avatar = new Avatar();
-    avatarLayer.x += 1200*0.380;
+    avatarLayer.x += 1200 * 0.380;
     avatarLayer.y += 120;
     avatarLayer.addChild(this.avatar);
 

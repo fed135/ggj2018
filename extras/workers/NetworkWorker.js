@@ -1,16 +1,17 @@
 import Kalm from 'kalm';
 import wss from 'kalm-secure-websocket';
+import ws from 'kalm-websocket';
 
 class NetworkWorker {
 	constructor(scope) {
 		this.socket = Kalm.connect({
-			hostname: '2watts.com',
-			port: 9000,
-			transport: wss,
+			hostname: process.env.SERVER_URL || '2watts.com',
+			port: process.env.SERVER_PORT || 9000,
+			transport: !!process.env.SECURE ? wss : ws,
 			profile: { tick: 0 }
 		});
 
-		this.socket.on('connect', () => console.log('Connected'))
+		this.socket.on('connect', () => console.log('Connected'));
 
 		this.emit = scope.postMessage.bind(scope);
 

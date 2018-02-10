@@ -1,12 +1,6 @@
-import {TimelineLite, Power0} from 'gsap';
+import {Power0, TimelineLite} from 'gsap';
 import {MapData} from "./map/MapParser";
-
-export enum Action {
-  UP = 'top',
-  DOWN = 'bottom',
-  LEFT = 'left',
-  RIGHT = 'right',
-}
+import {Input} from "../server/player/types";
 
 
 type Point = {
@@ -59,66 +53,81 @@ type StepValidator = (
 // };
 
 const MOVES: MoveCommands = {
-  [Action.UP]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {
-    const newPosition = {
-      ...baseMovement,
-      ...lastPosition,
-      y: lastPosition.y -= map.tileHeight,
-    };
+    [Input.UP]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {
+      const newPosition = Object.assign(
+        {},
+        baseMovement,
+        lastPosition,
+        {
+          y: lastPosition.y -= map.tileHeight,
+        }
+      );
 
-    timeLine.to(
-      target,
-      SPEED,
-      newPosition,
-    );
-    return newPosition;
-  },
+      timeLine.to(
+        target,
+        SPEED,
+        newPosition,
+      );
+      return newPosition;
+    },
 
-  [Action.DOWN]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {
-    const newPosition = {
-      ...baseMovement,
-      ...lastPosition,
-      y: lastPosition.y += map.tileHeight,
-    };
+    [Input.DOWN]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {
+      const newPosition = Object.assign(
+        {},
+        baseMovement,
+        lastPosition,
+        {
+          y: lastPosition.y += map.tileHeight,
+        }
+      );
 
-    timeLine.to(
-      target,
-      SPEED,
-      newPosition,
-    );
-    return newPosition;
-  },
-  [Action.LEFT]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {
-    const newPosition = {
-      ...baseMovement,
-      ...lastPosition,
-      x: lastPosition.x -= map.tileWidth,
-    };
+      timeLine.to(
+        target,
+        SPEED,
+        newPosition,
+      );
+      return newPosition;
+    },
 
-    timeLine.to(
-      target,
-      SPEED,
-      newPosition,
-    );
-    return newPosition;
-  },
-  [Action.RIGHT]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {
-    const newPosition = {
-      ...baseMovement,
-      ...lastPosition,
-      x: lastPosition.x += map.tileWidth,
-    };
+    [Input.LEFT]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {
+      const newPosition = Object.assign(
+        {},
+        baseMovement,
+        lastPosition,
+        {
+          x: lastPosition.x -= map.tileWidth,
+        }
+      );
 
-    timeLine.to(
-      target,
-      SPEED,
-      newPosition,
-    );
-    return newPosition;
-  },
-};
+      timeLine.to(
+        target,
+        SPEED,
+        newPosition,
+      );
+      return newPosition;
+    },
 
-export const moveAvatar = (target: PIXI.Container, moves: Action[], rawMapData: MapData) => {
+    [Input.RIGHT]: (timeLine: TimelineLite, target: PIXI.Container, map: MapData, lastPosition: Point): Point => {
+      const newPosition = Object.assign(
+        {},
+        baseMovement,
+        lastPosition,
+        {
+          x: lastPosition.x += map.tileWidth,
+        }
+      );
+
+      timeLine.to(
+        target,
+        SPEED,
+        newPosition,
+      );
+      return newPosition;
+    },
+  }
+;
+
+export const moveAvatar = (target: PIXI.Container, moves: Input[], rawMapData: MapData) => {
   const timeLine = new TimelineLite();
   let positionAccumulator: Point = {x: target.x, y: target.y};
   moves.forEach((move) => {

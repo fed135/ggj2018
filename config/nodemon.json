@@ -7,7 +7,7 @@
     "server/**/*.ts",
     "server/*.ts"
   ],
-  "ignore":[
+  "ignore": [
     "__tests__"
   ]
 }

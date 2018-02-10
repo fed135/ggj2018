@@ -1,6 +1,5 @@
 import * as PIXI from 'pixi.js';
 import {EventEmitter} from 'events';
-import {Action} from "../Step";
 
 export default class ArrowButton {
 

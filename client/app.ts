@@ -1,133 +1,124 @@
-import Game, {match} from './Game';
+import {ClientMatch, default as Game} from './Game';
 import NetworkClient from '../extras/system/Net';
+import Lobby from "./network/Lobby";
+import * as Random from "./utils/Random";
+import View, {Elements} from "./view/View";
+import MatchStore from "./match/Store";
+import {PlayerState} from "../server/player/types";
 
-// Local vars
+const lobbyNameLength: number = 5;
+const elements: Elements = {
+  intro: {
+    matchNameInput: () => document.getElementById('lobby_name') as HTMLInputElement,
+    joinMatchButton: () => document.getElementById('lobby_btn'),
+    introContainer: () => document.getElementById('splash'),
+  },
+  lobby: {
+    lobbyContainer: () => document.getElementById('lobby'),
+    lobbyNameLabel: () => document.getElementById('lobby_name_label'),
+    readyButton: () => document.getElementById('ready_btn') as HTMLButtonElement,
+    quitButton: () => document.getElementById('quit_btn') as HTMLButtonElement,
+  },
+  game: {
+    container: () => document.getElementById('game') as HTMLDivElement,
+  },
 
-let locked = false;
-let fullScreen = false;
-let match: match = {
-  name: null,
-  state: 'splash',
-  players: 0,
-  color: null
 };
 
-type FullScreenDOM = HTMLElement & {
-  requestFullScreen: 'string',
-  mozRequestFullScreen: 'string',
-  webkitRequestFullScreenWithKeys: 'string',
-  webkitRequestFullScreen: 'string'
-}
 
-let Net: NetworkClient;
+const setMatchNameInputFromUrl = () => {
+  const matchNameFromUrl: string = window.location.href.split('#')[1] || '';
+  const matchName: string = matchNameFromUrl || Random.make(lobbyNameLength);
 
-function init() {
-  Net = new NetworkClient();
-  const urlMatch = window.location.href.split('#');
-  setTimeout(() => {
-    (document.getElementById('lobby_name') as HTMLInputElement).value = urlMatch[1] || makeid();
-  }, 10);
+  elements
+    .intro
+    .matchNameInput()
+    .value = matchName;
+};
 
-  // Bind UI controls
-  document.getElementById('lobby_btn').onclick = handleJoin;
-}
-
-function makeid() {
-  var text = "";
-  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-  for (var i = 0; i < 5; i++)
-    text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-  return text;
-}
-
-function handleJoin(param) {
-  if (!locked) {
-    locked = true;
-    const tag = document.body as FullScreenDOM;
-
-    // Enter full screen
-		const fsEvent = (tag.requestFullScreen)?"requestFullScreen":(tag.mozRequestFullScreen)?"mozRequestFullScreen":(tag.webkitRequestFullScreenWithKeys)?"webkitRequestFullScreenWithKeys":(tag.webkitRequestFullScreen)?"webkitRequestFullScreen":"FullscreenError";
-
-		// Enter full screen
-		// tag[fsEvent]();
-
-    const matchName = '' + (document.getElementById('lobby_name') as HTMLInputElement).value.toLowerCase();
-
-    if (matchName === '') {
-      locked = false;
-      return false;
-    }
-
-    match.name = matchName;
-    Net.subscribe('lobby.join', handleReply, true);
-    Net.send('lobby.join', {
-      match: matchName
-    });
-  }
-}
-
-function handleReply(packet) {
-  locked = false;
-  if (packet.state) {
-    Net.subscribe('lobby.update', handleMatchUpdate);
-    match.state = packet.state;
-    // Show lobby
-    enterLobby();
-  }
-  else {
-    alert('Match unavailable');
-  }
-
-}
-
-function enterLobby() {
-  document.getElementById('lobby').style.display = 'block';
-  document.getElementById('splash').style.display = 'none';
-  document.getElementById('lobby_name_label').innerHTML = 'lobby: ' + match.name;
-  document.getElementById('ready_btn').onclick = handleReady;
-  document.getElementById('quit_btn').onclick = handleQuit;
-}
-
-function handleReady() {
-  if (!locked) {
-    locked = true;
-    Net.send('lobby.update', {state: 'game', match: match.name});
-    setTimeout(() => {
-      locked = false
-    }, 2000);
-  }
-}
-
-function handleMatchUpdate(packet) {
-  match = packet;
-  if (match.state === 'game') {
-    transitionToGame();
-  }
-  else {
-    for (let i = 0; i < 8; i++) {
-      if (match.color === i) {
-        document.getElementById(`player${i + 1}`).innerHTML = 'ME';
-      }
-      document.getElementById(`player${i + 1}`).className = (i < match.players) ? 'player' : 'player none';
-    }
-  }
-}
-
-function handleQuit() {
+const onQuitLobby = (event: MouseEvent): any => {
   window.location.href = '/ggj2018';
-}
+};
 
-const transitionToGame = (): any => {
-  new Game(document.getElementById('game') as HTMLDivElement, Net, match);
-  document.getElementById('lobby').style.display = 'none';
-  document.getElementById('splash').style.display = 'none';
+const onPlayerReady = (lobby: Lobby, matchStore: MatchStore) => (event: MouseEvent): any => {
+  lobby.readyToStart(matchStore.getName());
+};
+
+const joinMatch = (lobby: Lobby, view: View) => () => {
+  console.log('Can join match, network is available!');
+
+  const matchName: string = elements
+    .intro
+    .matchNameInput()
+    .value
+    .toLowerCase();
+
+  if (matchName === '') {
+    return false;
+  }
+
+  // Wait until the user has joined a match before we listen for other events
+  lobby.onSelfJoin((matchState: ClientMatch) => {
+    console.log('I just joined the match!');
+
+    const store: MatchStore = new MatchStore(matchState);
+    addNewPlayer(store)(matchState);
+    lobby.onNewPlayer(addNewPlayer(store));
+    lobby.onStartGame(transitionToGame(store, lobby, view));
+
+
+    // Transition to the lobby
+    view.leaveIntro()
+      .then(() => view.showLobby(
+        store,
+        onPlayerReady(lobby, store),
+        onQuitLobby,
+      ));
+  });
+
+  // Attempt to join the match
+  lobby.join(matchName);
 };
 
 
-if (process.env.MODE === 'offline') {
-  transitionToGame();
-} else {
-  init();
-}
+const refreshLobby = (matchStore: MatchStore) => {
+  const players = matchStore.getPlayers();
+  console.log('players', players);
+  console.log('self', matchStore.getSelf());
+  players.forEach((player: PlayerState, index: number) => {
+    if (matchStore.getSelf().id === player.id) {
+      document.getElementById(`player${index + 1}`).innerHTML = 'ME';
+    }
+
+    document.getElementById(`player${index + 1}`)
+      .className = (index < players.length)
+      ? 'player'
+      : 'player none';
+  });
+
+};
+
+const addNewPlayer = (matchStore: MatchStore) => (newMatchState: ClientMatch) => {
+  console.log('A new challenger appears!');
+  matchStore.updateState(newMatchState);
+  refreshLobby(matchStore);
+};
+
+const transitionToGame = (matchStore: MatchStore, lobby: Lobby, view: View): any => () => {
+  view.leaveLobby()
+    .then(() => view.leaveIntro())
+    .then(() => {
+      lobby.disconnect();
+    })
+    .then(() => new Game(elements.game.container(), lobby.getNetwork(), matchStore));
+};
+
+const init = async () => {
+  setMatchNameInputFromUrl();
+
+  const view: View = new View(elements);
+  const lobby: Lobby = new Lobby(new NetworkClient());
+  elements.intro.joinMatchButton().onclick = joinMatch(lobby, view);
+};
+
+init();

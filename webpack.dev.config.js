@@ -8,6 +8,11 @@ const howler = path.join(__dirname, '/node_modules/howler/dist/howler.min.js');
 const vendorPackages = /howler|pixi.js/;
 
 module.exports = {
+
+  devServer: {
+    host:'0.0.0.0',
+    port:8000,
+  },
   entry: {
     vendor: [ 'pixi.js', 'howler' ],
     app: [
@@ -20,7 +25,8 @@ module.exports = {
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env': JSON.stringify(process.env),
+      'process.env.MODE': JSON.stringify(process.env.MODE),
+      'process.env.SERVER_URL': JSON.stringify(process.env.SERVER_URL),
     }),
     new CopyWebpackPlugin([
       {
