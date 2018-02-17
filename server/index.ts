@@ -8,7 +8,7 @@ import {LobbyActions} from './lobby/types';
 import {Match, MatchState} from "./match/types";
 import {IConnection} from "./types";
 import * as MatchStore from "./match/MatchStore";
-import {PlayerAction} from "./player/types";
+import {Input, PlayerAction} from "./player/types";
 import * as GameController from "./game";
 
 
@@ -59,7 +59,6 @@ const update = (match: Match, getCustomData: GetCustomData) => {
   match.players
     .filter(player => !!player.connection.socket)
     .forEach((player: Player) => {
-
       getCustomData(player, sendUpdatedMatchState(player, match));
     });
 };
@@ -109,13 +108,31 @@ socketApp.on('connection', (connection: IConnection) => {
 
 
   // // GAME
-  connection.subscribe(PlayerAction.INPUT, GameController.input(currentPlayer));
-  // connection.subscribe('currentPlayer.move', gameController.move(currentPlayer));
-  //
-  // connection.subscribe('currentPlayer.punch', gameController.punch(currentPlayer));
-  //
-  // connection.subscribe('currentPlayer.spawn', gameController.spawn(currentPlayer));
-  //
-  // connection.subscribe('currentPlayer.vibrate', gameController.vibrate(currentPlayer));
-});
+  connection.subscribe(PlayerAction.INPUT, async (request) => {
+    await GameController.input(currentPlayer, request.body.direction);
+
+    const match: Match = await MatchStore.get(currentPlayer.getMatchName());
+    const inputs: Input[][] = match.players
+      .map(player => player.getInputs());
+
+    const isVoteOver: boolean = await GameController.isVoteOver(inputs);
+
+    if (isVoteOver) {
+      match.players.forEach(player => player.flushInputs());
+      const voteResult: Input[] = GameController.getMostVotedInputs(inputs);
+
+      match.players.forEach(player => {
+        player.connection.write('game.vote_is_over', {voteResult});
+      });
+    }
+  });
+// connection.subscribe('currentPlayer.move', gameController.move(currentPlayer));
+//
+// connection.subscribe('currentPlayer.punch', gameController.punch(currentPlayer));
+//
+// connection.subscribe('currentPlayer.spawn', gameController.spawn(currentPlayer));
+//
+// connection.subscribe('currentPlayer.vibrate', gameController.vibrate(currentPlayer));
+})
+;
 

@@ -18,7 +18,7 @@ export default class UIWrapper extends PIXI.Sprite {
 
   public moves = [];
 
-  constructor(ratio: number, inputManager: EventEmitter) {
+  constructor(ratio: number, inputDispatcher: EventEmitter) {
     super();
 
     const uiSize = 210;
@@ -34,16 +34,16 @@ export default class UIWrapper extends PIXI.Sprite {
 
     // Arrows
     this.inputs = {
-      top: new ArrowButton(this.box, Input.UP, inputManager),
-      left: new ArrowButton(this.box, Input.LEFT, inputManager),
-      right: new ArrowButton(this.box, Input.RIGHT, inputManager),
-      bottom: new ArrowButton(this.box, Input.DOWN, inputManager)
+      top: new ArrowButton(this.box, Input.UP, inputDispatcher),
+      left: new ArrowButton(this.box, Input.LEFT, inputDispatcher),
+      right: new ArrowButton(this.box, Input.RIGHT, inputDispatcher),
+      bottom: new ArrowButton(this.box, Input.DOWN, inputDispatcher)
     };
 
     // Move boxes
     this.moves.length = config.playsPerTurn;
     for (let i = 0; i < config.playsPerTurn; i++) {
-      const move = new MoveIndicator(ratio, i, inputManager);
+      const move = new MoveIndicator(ratio, i, inputDispatcher);
       this.moves[i] = move;
       this.box.addChild(move);
     }

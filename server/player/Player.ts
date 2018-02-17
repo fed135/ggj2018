@@ -29,6 +29,7 @@ export default class Player {
 
   public addInput(action: Input) {
     if (this.inputs.length < Player.maxMovePerTurn) {
+      console.log('addInput', action, 'to', this.inputs);
       this.inputs = [
         ...this.inputs,
         action,
@@ -36,7 +37,7 @@ export default class Player {
     }
   }
 
-  public flushInput(): Input[] {
+  public flushInputs(): Input[] {
     const inputs = this.inputs;
     this.inputs = [];
     return inputs;

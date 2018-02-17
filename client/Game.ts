@@ -41,11 +41,11 @@ class GameNetwork {
 
 export default class Game {
 
-  public inputManager = new EventEmitter();
-  private app = null;
-  private avatar: Avatar = null;
-  private inputAccumulator = null;
-  private gameContainer: PIXI.Sprite = null;
+  public inputDispatcher: EventEmitter = new EventEmitter();
+  private app: PIXI.Application;
+  private avatar: Avatar;
+  private inputAccumulator: InputAccumulator;
+  private gameContainer: PIXI.Sprite;
   private gameNetwork: GameNetwork;
 
   constructor(container: HTMLDivElement, networkClient: NetworkClient, matchStore: MatchStore) {
@@ -57,9 +57,23 @@ export default class Game {
     this.app = new PIXI.Application({width: window.innerWidth, height: window.innerHeight});
     window.addEventListener("resize", this.resizeGameView.bind(this));
 
-    this.inputManager.setMaxListeners(100);
-    this.inputAccumulator = new InputAccumulator(matchStore, this.inputManager);
+    // Dispatcher setup
+    this.inputDispatcher.setMaxListeners(100);
+    this.inputDispatcher.on('input', (action) => {
+      navigator.vibrate([100, 10, 100]);
+      this.gameNetwork.sendInput({
+        direction: action.direction,
+      });
+    });
+    this.inputDispatcher.on('moveAccepted', (action) => {
+      networkClient.send('player.move', action);
+    });
+    // this.inputDispatcher.on('movesAllAccepted', (request) => {
+    //   console.log('movesAllAccepted', request);
+    // this.startPlayback.bind(this)
+    // });
 
+    // View setup
     // The application will create a canvas element for you that you
     // can then insert into the DOM
     container.appendChild(this.app.view);
@@ -76,25 +90,18 @@ export default class Game {
     });
     PIXI.loader.load(this.load(this.app));
 
-    this.inputManager.on('input', (action) => {
-      navigator.vibrate([100, 10, 100]);
-      this.gameNetwork.sendInput({
-        direction: action.direction,
-      });
-    });
-
+    this.inputAccumulator = new InputAccumulator(matchStore, this.inputDispatcher);
     networkClient.subscribe('player.move', this.inputAccumulator.push.bind(this.inputAccumulator));
-
-    this.inputManager.on('moveAccepted', (action) => {
-      networkClient.send('player.move', action);
+    networkClient.subscribe('game.vote_is_over', (request) => {
+      console.log('game.vote_is_over', request.voteResult);
+      moveAvatar(this.avatar, request.voteResult, rawMapData);
     });
-    this.inputManager.on('movesAllAccepted', this.startPlayback.bind(this));
   }
 
   resizeGameView() {
     this.app.renderer.resize(window.innerWidth, window.innerHeight);
 
-    const ratio = TypicalDeviceHeight / window.screen.height
+    const ratio = TypicalDeviceHeight / window.screen.height;
 
     if (this.gameContainer) {
       this.gameContainer.scale = new Point(ratio, ratio);
@@ -114,7 +121,7 @@ export default class Game {
     this.gameContainer.addChild(new MapView(resources, avatarLayer, rawMapData));
 
     app.stage.addChild(this.gameContainer);
-    app.stage.addChild(new UIWrapper(this.gameContainer.scale.x, this.inputManager));
+    app.stage.addChild(new UIWrapper(this.gameContainer.scale.x, this.inputDispatcher));
 
     this.resizeGameView();
 

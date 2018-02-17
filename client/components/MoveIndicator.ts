@@ -6,7 +6,7 @@ export default class MoveIndicator extends PIXI.Sprite {
 
   private box = new PIXI.Graphics();
 
-  constructor(ratio: number, index: number, inputManager: EventEmitter) {
+  constructor(ratio: number, index: number, inputDispatcher: EventEmitter) {
     super();
 
     const moveBoxSize = 190;
@@ -36,7 +36,7 @@ export default class MoveIndicator extends PIXI.Sprite {
     this.box.endFill();
 
     // Lighting up
-    inputManager.on('moveAccepted', (action) => {
+    inputDispatcher.on('moveAccepted', (action) => {
       if (index === (config.playsPerTurn - action.numMovesLeft) - 1) {
         this.box.alpha = 1;
 

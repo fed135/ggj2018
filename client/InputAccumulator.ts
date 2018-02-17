@@ -9,12 +9,12 @@ export default class InputAccumulator {
   private numPlayers = 0;
   private color = 0;
 
-  constructor(matchStore: MatchStore, private inputManager: EventEmitter) {
+  constructor(matchStore: MatchStore, private inputDispatcher: EventEmitter) {
     this.numPlayers = matchStore.getPlayers().length;
     this.color = matchStore.getSelf().color;
   }
 
-  push(action) {
+  public push(action): void {
     if (this.color === action.color) {
       // Local
       if (this.numMovesLeft > 0) {
@@ -25,7 +25,7 @@ export default class InputAccumulator {
           time: Date.now()
         };
         this.list.push(move);
-        this.inputManager.emit('moveAccepted', {
+        this.inputDispatcher.emit('moveAccepted', {
           numMovesLeft: this.numMovesLeft,
           move
         });
@@ -40,7 +40,7 @@ export default class InputAccumulator {
 
     // Check game completed
     if (this.list.length === config.playsPerTurn * this.numPlayers) {
-      this.inputManager.emit('movesAllAccepted', {list: this.list});
+      this.inputDispatcher.emit('movesAllAccepted', {list: this.list});
     }
   }
 }

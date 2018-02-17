@@ -3,7 +3,6 @@ import {MapData, parseMap, Tile} from "./MapParser";
 const loadStaticLayers = (container: PIXI.Container, specialLayer: PIXI.Sprite, rawMapData: MapData, resources) => {
   rawMapData.layers.reverse().forEach((layer: string) => {
     if (layer === null) {
-      console.log('LAYER');
       // Fill and add the special layer
       loadInteractiveLayer(specialLayer, parseMap(rawMapData), resources);
       container.addChild(specialLayer);

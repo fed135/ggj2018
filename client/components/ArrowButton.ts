@@ -5,7 +5,7 @@ export default class ArrowButton {
 
   private box = new PIXI.Graphics();
 
-  constructor(container: PIXI.Container, direction: string, inputManager: EventEmitter) {
+  constructor(container: PIXI.Container, direction: string, inputDispatcher: EventEmitter) {
 
     const positions = {
       top: [80, 240, 0],
@@ -32,7 +32,7 @@ export default class ArrowButton {
     // Interactivity
     this.box.interactive = true;
     this.box.buttonMode = true;
-    this.box.on('pointerdown', inputManager.emit.bind(inputManager, 'input', {direction}));
+    this.box.on('pointerdown', inputDispatcher.emit.bind(inputDispatcher, 'input', {direction}));
 
     // Arrow graphics
     const arrowGraphics = new PIXI.Graphics();
