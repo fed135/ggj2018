@@ -17241,17 +17241,13 @@ class GameNetwork {
 }
 class Game {
     constructor(container, networkClient, matchStore) {
-        this.inputManager = new events_1.EventEmitter();
-        this.app = null;
-        this.avatar = null;
-        this.inputAccumulator = null;
-        this.gameContainer = null;
+        this.inputDispatcher = new events_1.EventEmitter();
         this.load = (app) => (loader, resources) => {
             this.gameContainer = new PIXI.Sprite();
             const avatarLayer = new PIXI.Sprite();
             this.gameContainer.addChild(new MapView_1.default(resources, avatarLayer, map_1.default));
             app.stage.addChild(this.gameContainer);
-            app.stage.addChild(new UIWrapper_1.default(this.gameContainer.scale.x, this.inputManager));
+            app.stage.addChild(new UIWrapper_1.default(this.gameContainer.scale.x, this.inputDispatcher));
             this.resizeGameView();
             this.avatar = new Avatar_1.default();
             avatarLayer.x += 1200 * 0.380;
@@ -17266,8 +17262,22 @@ class Game {
         // and the root stage PIXI.Container
         this.app = new PIXI.Application({ width: window.innerWidth, height: window.innerHeight });
         window.addEventListener("resize", this.resizeGameView.bind(this));
-        this.inputManager.setMaxListeners(100);
-        this.inputAccumulator = new InputAccumulator_1.default(matchStore, this.inputManager);
+        // Dispatcher setup
+        this.inputDispatcher.setMaxListeners(100);
+        this.inputDispatcher.on('input', (action) => {
+            navigator.vibrate([100, 10, 100]);
+            this.gameNetwork.sendInput({
+                direction: action.direction,
+            });
+        });
+        this.inputDispatcher.on('moveAccepted', (action) => {
+            networkClient.send('player.move', action);
+        });
+        // this.inputDispatcher.on('movesAllAccepted', (request) => {
+        //   console.log('movesAllAccepted', request);
+        // this.startPlayback.bind(this)
+        // });
+        // View setup
         // The application will create a canvas element for you that you
         // can then insert into the DOM
         container.appendChild(this.app.view);
@@ -17282,17 +17292,12 @@ class Game {
             PIXI.loader.add(id, path);
         });
         PIXI.loader.load(this.load(this.app));
-        this.inputManager.on('input', (action) => {
-            navigator.vibrate([100, 10, 100]);
-            this.gameNetwork.sendInput({
-                direction: action.direction,
-            });
-        });
+        this.inputAccumulator = new InputAccumulator_1.default(matchStore, this.inputDispatcher);
         networkClient.subscribe('player.move', this.inputAccumulator.push.bind(this.inputAccumulator));
-        this.inputManager.on('moveAccepted', (action) => {
-            networkClient.send('player.move', action);
+        networkClient.subscribe('game.vote_is_over', (request) => {
+            console.log('game.vote_is_over', request.voteResult);
+            Step_1.moveAvatar(this.avatar, request.voteResult, map_1.default);
         });
-        this.inputManager.on('movesAllAccepted', this.startPlayback.bind(this));
     }
     resizeGameView() {
         this.app.renderer.resize(window.innerWidth, window.innerHeight);
@@ -17368,7 +17373,7 @@ const MoveIndicator_1 = __webpack_require__(353);
 const config_1 = __webpack_require__(38);
 const types_1 = __webpack_require__(39);
 class UIWrapper extends PIXI.Sprite {
-    constructor(ratio, inputManager) {
+    constructor(ratio, inputDispatcher) {
         super();
         this.box = new PIXI.Graphics();
         this.inputs = {
@@ -17387,15 +17392,15 @@ class UIWrapper extends PIXI.Sprite {
         this.box.height = window.innerHeight;
         // Arrows
         this.inputs = {
-            top: new ArrowButton_1.default(this.box, types_1.Input.UP, inputManager),
-            left: new ArrowButton_1.default(this.box, types_1.Input.LEFT, inputManager),
-            right: new ArrowButton_1.default(this.box, types_1.Input.RIGHT, inputManager),
-            bottom: new ArrowButton_1.default(this.box, types_1.Input.DOWN, inputManager)
+            top: new ArrowButton_1.default(this.box, types_1.Input.UP, inputDispatcher),
+            left: new ArrowButton_1.default(this.box, types_1.Input.LEFT, inputDispatcher),
+            right: new ArrowButton_1.default(this.box, types_1.Input.RIGHT, inputDispatcher),
+            bottom: new ArrowButton_1.default(this.box, types_1.Input.DOWN, inputDispatcher)
         };
         // Move boxes
         this.moves.length = config_1.default.playsPerTurn;
         for (let i = 0; i < config_1.default.playsPerTurn; i++) {
-            const move = new MoveIndicator_1.default(ratio, i, inputManager);
+            const move = new MoveIndicator_1.default(ratio, i, inputDispatcher);
             this.moves[i] = move;
             this.box.addChild(move);
         }
@@ -17416,7 +17421,7 @@ exports.default = UIWrapper;
 Object.defineProperty(exports, "__esModule", { value: true });
 const PIXI = __webpack_require__(11);
 class ArrowButton {
-    constructor(container, direction, inputManager) {
+    constructor(container, direction, inputDispatcher) {
         this.box = new PIXI.Graphics();
         const positions = {
             top: [80, 240, 0],
@@ -17434,7 +17439,7 @@ class ArrowButton {
         // Interactivity
         this.box.interactive = true;
         this.box.buttonMode = true;
-        this.box.on('pointerdown', inputManager.emit.bind(inputManager, 'input', { direction }));
+        this.box.on('pointerdown', inputDispatcher.emit.bind(inputDispatcher, 'input', { direction }));
         // Arrow graphics
         const arrowGraphics = new PIXI.Graphics();
         arrowGraphics.beginFill(0x333333, 0.8);
@@ -17464,7 +17469,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const PIXI = __webpack_require__(11);
 const config_1 = __webpack_require__(38);
 class MoveIndicator extends PIXI.Sprite {
-    constructor(ratio, index, inputManager) {
+    constructor(ratio, index, inputDispatcher) {
         super();
         this.box = new PIXI.Graphics();
         const moveBoxSize = 190;
@@ -17484,7 +17489,7 @@ class MoveIndicator extends PIXI.Sprite {
         this.box.drawRoundedRect((10) + ((boxSize) * (index % movesPerRow)), (50) + ((boxSize) * Math.floor(index / movesPerRow)), boxSize, boxSize, 8);
         this.box.endFill();
         // Lighting up
-        inputManager.on('moveAccepted', (action) => {
+        inputDispatcher.on('moveAccepted', (action) => {
             if (index === (config_1.default.playsPerTurn - action.numMovesLeft) - 1) {
                 this.box.alpha = 1;
                 // Arrow graphics
@@ -17537,8 +17542,8 @@ exports.default = Avatar;
 Object.defineProperty(exports, "__esModule", { value: true });
 const config_1 = __webpack_require__(38);
 class InputAccumulator {
-    constructor(matchStore, inputManager) {
-        this.inputManager = inputManager;
+    constructor(matchStore, inputDispatcher) {
+        this.inputDispatcher = inputDispatcher;
         this.list = [];
         this.numMovesLeft = config_1.default.playsPerTurn;
         this.numPlayers = 0;
@@ -17557,7 +17562,7 @@ class InputAccumulator {
                     time: Date.now()
                 };
                 this.list.push(move);
-                this.inputManager.emit('moveAccepted', {
+                this.inputDispatcher.emit('moveAccepted', {
                     numMovesLeft: this.numMovesLeft,
                     move
                 });
@@ -17572,7 +17577,7 @@ class InputAccumulator {
         }
         // Check game completed
         if (this.list.length === config_1.default.playsPerTurn * this.numPlayers) {
-            this.inputManager.emit('movesAllAccepted', { list: this.list });
+            this.inputDispatcher.emit('movesAllAccepted', { list: this.list });
         }
     }
 }
@@ -25631,7 +25636,6 @@ const MapParser_1 = __webpack_require__(359);
 const loadStaticLayers = (container, specialLayer, rawMapData, resources) => {
     rawMapData.layers.reverse().forEach((layer) => {
         if (layer === null) {
-            console.log('LAYER');
             // Fill and add the special layer
             loadInteractiveLayer(specialLayer, MapParser_1.parseMap(rawMapData), resources);
             container.addChild(specialLayer);
@@ -25687,9 +25691,7 @@ exports.mapValidation = (mapData) => {
         throw new Error('Map "map" should not be empty');
     }
     const keyList = lodash_1.keys(mapData.tiles);
-    console.log('keyList', keyList);
     const tileKeys = keyList.map((key) => parseInt(key));
-    console.log('Loading tile keys', tileKeys);
     if (!lodash_1.uniq(mapData.map).every(isIn(tileKeys))) {
         throw new Error('A key was used in Map.map that was not defined in Map.tiles');
     }
